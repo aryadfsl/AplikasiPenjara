@@ -1,3 +1,7 @@
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../service/auth_service.dart';
+
 class UserProfileScreenController {
   String formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -33,5 +37,35 @@ class UserProfileScreenController {
     
     final progress = (elapsed / total * 100).toStringAsFixed(1);
     return '$progress%';
+  }
+
+  Future<void> logoutWithPopup(BuildContext context) async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    await authService.logout();
+    if (!context.mounted) return;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          duration: const Duration(seconds: 2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          backgroundColor: Colors.blueGrey[800],
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle_outline, color: Colors.white),
+              SizedBox(width: 12),
+              Text('Logout berhasil'),
+            ],
+          ),
+        ),
+      );
+
+    await Future.delayed(const Duration(seconds: 2));
+    if (!context.mounted) return;
+    Navigator.pushReplacementNamed(context, '/');
   }
 }

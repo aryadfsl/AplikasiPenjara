@@ -4,6 +4,7 @@ import '../service/auth_service.dart';
 import '../service/firebase_service.dart';
 import '../models/schedule.dart';
 import 'tambah_jadwal_page.dart';
+import 'schedule_detail_page.dart';
 
 class UserScheduleScreen extends StatefulWidget {
   const UserScheduleScreen({super.key});
@@ -44,17 +45,17 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
   Color _getScheduleColor(String type) {
     switch (type) {
       case 'kerja':
-        return Colors.blue;
+        return Colors.blueGrey[800]!;
       case 'olahraga':
-        return Colors.green;
+        return Colors.blueGrey[800]!;
       case 'pendidikan':
-        return Colors.purple;
+        return Colors.blueGrey[800]!;
       case 'ibadah':
-        return Colors.orange;
+        return Colors.blueGrey[800]!;
       case 'makan':
-        return Colors.red;
+        return Colors.blueGrey[800]!;
       default:
-        return Colors.grey;
+        return Colors.blueGrey[800]!;
     }
   }
 
@@ -79,100 +80,114 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
 
   // date formatting helper not used here (kept for reference)
 
+
   Widget _buildScheduleCard(Schedule schedule) {
     final color = _getScheduleColor(schedule.type);
     final icon = _getScheduleIcon(schedule.type);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    shape: BoxShape.circle,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ScheduleDetailPage(schedule: schedule),
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(icon, color: color),
                   ),
-                  child: Icon(icon, color: color),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        schedule.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          schedule.title,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      Text(
-                        schedule.description,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
+                        Text(
+                          schedule.description,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[600],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _getTypeLabel(schedule.type).toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: color,
+                      ],
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _buildScheduleDetail(
-                  icon: Icons.access_time,
-                  text: '${schedule.startTime} - ${schedule.endTime}',
-                ),
-                const SizedBox(width: 16),
-                _buildScheduleDetail(
-                  icon: Icons.location_on,
-                  text: schedule.location,
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _buildScheduleDetail(
-                  icon: Icons.person,
-                  text: schedule.instructor,
-                ),
-                const Spacer(),
-                Chip(
-                  label: Text(
-                    schedule.isMandatory ? 'Wajib' : 'Opsional',
-                    style: const TextStyle(fontSize: 10),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: color.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      _getTypeLabel(schedule.type).toUpperCase(),
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
                   ),
-                  backgroundColor: schedule.isMandatory 
-                      ? Colors.red[100] 
-                      : Colors.green[100],
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  _buildScheduleDetail(
+                    icon: Icons.access_time,
+                    text: '${schedule.startTime} - ${schedule.endTime}',
+                  ),
+                  const SizedBox(width: 16),
+                  _buildScheduleDetail(
+                    icon: Icons.location_on,
+                    text: schedule.location,
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  _buildScheduleDetail(
+                    icon: Icons.person,
+                    text: schedule.instructor,
+                  ),
+                  const Spacer(),
+                  Chip(
+                    label: Text(
+                      schedule.isMandatory ? 'Wajib' : 'Opsional',
+                      style: const TextStyle(fontSize: 10),
+                    ),
+                    backgroundColor: schedule.isMandatory 
+                        ? Colors.red[100] 
+                        : Colors.green[100],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

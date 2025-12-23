@@ -254,6 +254,7 @@ class _AdminRequestManagementState extends State<AdminRequestManagement> {
     final pendingRequests = _controller.allRequests.where((r) => r.status == 'pending').length;
 
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -263,34 +264,68 @@ class _AdminRequestManagementState extends State<AdminRequestManagement> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  Card(
-                    color: Colors.blueGrey[50],
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Manajemen Pengajuan',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 26,
                               fontWeight: FontWeight.bold,
-                              color: Colors.blueGrey[800],
+                              color: Colors.blueGrey[900],
+                              letterSpacing: -0.5,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Total: ${_controller.allRequests.length} pengajuan • Pending: $pendingRequests',
+                            'Proses dan tangani pengajuan narapidana',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 15,
                               color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
                             ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(
+                                  title: 'Total',
+                                  value: '${_controller.allRequests.length}',
+                                  color: Colors.blue,
+                                  icon: Icons.request_page,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatCard(
+                                  title: 'Pending',
+                                  value: '$pendingRequests',
+                                  color: Colors.orange,
+                                  icon: Icons.pending,
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   Row(
                     children: [
                       Expanded(
@@ -301,7 +336,9 @@ class _AdminRequestManagementState extends State<AdminRequestManagement> {
                               decoration: InputDecoration(
                                 labelText: 'Cari pengajuan...',
                                 prefixIcon: const Icon(Icons.search),
-                                border: const OutlineInputBorder(),
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                filled: true,
+                                fillColor: Colors.white,
                                 suffixIcon: _controller.searchController.text.isNotEmpty
                                     ? IconButton(
                                         icon: const Icon(Icons.clear),
@@ -326,42 +363,56 @@ class _AdminRequestManagementState extends State<AdminRequestManagement> {
                       const SizedBox(width: 12),
                       StatefulBuilder(
                         builder: (context, setState) {
-                          return DropdownButton<String>(
-                            value: _controller.selectedStatus,
-                            items: const [
-                              DropdownMenuItem(value: 'pending', child: Text('Pending')),
-                              DropdownMenuItem(value: 'semua', child: Text('Semua')),
-                              DropdownMenuItem(value: 'approved', child: Text('Disetujui')),
-                              DropdownMenuItem(value: 'rejected', child: Text('Ditolak')),
-                            ],
-                            onChanged: (value) {
-                              setState(() {
-                                _controller.selectedStatus = value!;
-                                _controller.filterRequests();
-                              });
-                            },
+                          return Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.grey[300]!),
+                              borderRadius: BorderRadius.circular(12),
+                              color: Colors.white,
+                            ),
+                            child: DropdownButton<String>(
+                              value: _controller.selectedStatus,
+                              underline: const SizedBox(),
+                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              items: const [
+                                DropdownMenuItem(value: 'pending', child: Text('Pending')),
+                                DropdownMenuItem(value: 'semua', child: Text('Semua')),
+                                DropdownMenuItem(value: 'approved', child: Text('Disetujui')),
+                                DropdownMenuItem(value: 'rejected', child: Text('Ditolak')),
+                              ],
+                              onChanged: (value) {
+                                setState(() {
+                                  _controller.selectedStatus = value!;
+                                  _controller.filterRequests();
+                                });
+                              },
+                            ),
                           );
                         },
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   if (_controller.filteredRequests.isEmpty)
                     Container(
                       padding: const EdgeInsets.all(40),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Column(
                         children: [
                           Icon(
-                            Icons.request_page,
-                            size: 60,
-                            color: Colors.grey[400],
+                            Icons.assignment_outlined,
+                            size: 64,
+                            color: Colors.grey[300],
                           ),
                           const SizedBox(height: 16),
-                          const Text(
+                          Text(
                             'Tidak ada pengajuan',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
                             ),
                           ),
                           const SizedBox(height: 8),
@@ -369,6 +420,7 @@ class _AdminRequestManagementState extends State<AdminRequestManagement> {
                             _controller.searchController.text.isEmpty && _controller.selectedStatus == 'pending'
                                 ? 'Belum ada pengajuan yang masuk'
                                 : 'Tidak ditemukan hasil pencarian',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[500],
@@ -381,9 +433,58 @@ class _AdminRequestManagementState extends State<AdminRequestManagement> {
                     Column(
                       children: _controller.filteredRequests.map(_buildRequestCard).toList(),
                     ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 20, color: color),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

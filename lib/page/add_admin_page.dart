@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import '../screens/add_narapidana_screens.dart';
 import '../models/user.dart';
+import 'detail_page.dart';
 
 class AdminInmateManagement extends StatefulWidget {
   const AdminInmateManagement({super.key});
@@ -195,7 +195,7 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField(
-                      value: _controller.selectedStatus,
+                      initialValue: _controller.selectedStatus,
                       items: ['aktif', 'transfer', 'bebas'].map((status) {
                         return DropdownMenuItem(value: status, child: Text(status));
                       }).toList(),
@@ -243,58 +243,10 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
   }
 
   void _showInmateDetails(UserModel inmate) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(inmate.fullName),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDetailItem('Email', inmate.email),
-              _buildDetailItem('ID Narapidana', inmate.inmateId),
-              _buildDetailItem('Blok', inmate.block),
-              _buildDetailItem('Sel', inmate.cell),
-              _buildDetailItem('Kasus', inmate.crime),
-              _buildDetailItem('Hukuman Mulai', _controller.formatDate(inmate.sentenceStart)),
-              _buildDetailItem('Hukuman Akhir', _controller.formatDate(inmate.sentenceEnd)),
-              _buildDetailItem('Sisa Waktu', _controller.calculateRemainingTime(inmate.sentenceEnd)),
-              _buildDetailItem('Status', inmate.status.toUpperCase()),
-              _buildDetailItem('Tanggal Daftar', _controller.formatDate(inmate.registrationDate)),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tutup'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 14),
-          ),
-        ],
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => AdminInmateDetailPage(inmate: inmate),
       ),
     );
   }
@@ -312,142 +264,310 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+      backgroundColor: Colors.grey[50],
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddInmateDialog,
-        backgroundColor: Colors.blueGrey,
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.blueGrey[800],
+        elevation: 4,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Narapidana Baru', style: TextStyle(color: Colors.white)),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                Card(
-                  color: Colors.blueGrey[50],
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Manajemen Narapidana',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blueGrey[800],
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Total: ${_controller.allUsers.length} narapidana',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 16),
-                StatefulBuilder(
-                  builder: (context, setState) {
-                    return TextField(
-                      controller: _controller.searchController,
-                      decoration: InputDecoration(
-                        labelText: 'Cari narapidana...',
-                        prefixIcon: const Icon(Icons.search),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: _controller.searchController.text.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  setState(() {
-                                    _controller.searchController.clear();
-                                    _controller.searchUsers('');
-                                  });
-                                },
-                              )
-                            : null,
-                      ),
-                      onChanged: (query) {
-                        setState(() {
-                          _controller.searchUsers(query);
-                        });
-                      },
-                    );
-                  },
-                ),
-                const SizedBox(height: 16),
-                if (_controller.filteredUsers.isEmpty)
+          : RefreshIndicator(
+              onRefresh: _loadData,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
                   Container(
-                    padding: const EdgeInsets.all(40),
-                    child: Column(
-                      children: [
-                        Icon(
-                          Icons.people,
-                          size: 60,
-                          color: Colors.grey[400],
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Tidak ada narapidana',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          _controller.searchController.text.isEmpty
-                              ? 'Tambahkan narapidana baru'
-                              : 'Tidak ditemukan hasil pencarian',
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[500],
-                          ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 2),
                         ),
                       ],
                     ),
-                  )
-                else
-                  Column(
-                    children: _controller.filteredUsers.map((inmate) {
-                      final statusColor = _controller.getStatusColor(inmate.status);
-                      return ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: Colors.blueGrey,
-                          child: Text(
-                            inmate.fullName.isEmpty ? '?' : inmate.fullName[0].toUpperCase(),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                        ),
-                        title: Text(
-                          inmate.fullName,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(inmate.inmateId),
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: statusColor.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Text(
-                            inmate.status.toUpperCase(),
+                    child: Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Manajemen Narapidana',
                             style: TextStyle(
-                              fontSize: 10,
+                              fontSize: 26,
                               fontWeight: FontWeight.bold,
-                              color: statusColor,
+                              color: Colors.blueGrey[900],
+                              letterSpacing: -0.5,
                             ),
                           ),
-                        ),
-                        onTap: () => _showInmateDetails(inmate),
-                      );
-                    }).toList(),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Kelola data dan informasi narapidana',
+                            style: TextStyle(
+                              fontSize: 15,
+                              color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildStatCard(
+                                  title: 'Total',
+                                  value: '${_controller.allUsers.length}',
+                                  color: Colors.blue,
+                                  icon: Icons.people,
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: _buildStatCard(
+                                  title: 'Aktif',
+                                  value: '${_controller.allUsers.where((u) => u.status == 'aktif').length}',
+                                  color: Colors.green,
+                                  icon: Icons.check_circle,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
+                  const SizedBox(height: 20),
+                  StatefulBuilder(
+                    builder: (context, setState) {
+                      return TextField(
+                        controller: _controller.searchController,
+                        decoration: InputDecoration(
+                          labelText: 'Cari narapidana...',
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          filled: true,
+                          fillColor: Colors.white,
+                          suffixIcon: _controller.searchController.text.isNotEmpty
+                              ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    setState(() {
+                                      _controller.searchController.clear();
+                                      _controller.searchUsers('');
+                                    });
+                                  },
+                                )
+                              : null,
+                        ),
+                        onChanged: (query) {
+                          setState(() {
+                            _controller.searchUsers(query);
+                          });
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 20),
+                  if (_controller.filteredUsers.isEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(40),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.people_outline,
+                            size: 64,
+                            color: Colors.grey[300],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Tidak ada narapidana',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            _controller.searchController.text.isEmpty
+                                ? 'Tambahkan narapidana baru dengan tombol di bawah'
+                                : 'Tidak ditemukan hasil pencarian',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                  else
+                    Column(
+                      children: _controller.filteredUsers.map((inmate) {
+                        final statusColor = _controller.getStatusColor(inmate.status);
+                        return _buildInmateCard(inmate, statusColor);
+                      }).toList(),
+                    ),
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget _buildStatCard({
+    required String title,
+    required String value,
+    required Color color,
+    required IconData icon,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.2),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, size: 20, color: color),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey[600],
+                ),
+              ),
+              Text(
+                value,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInmateCard(UserModel inmate, Color statusColor) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => _showInmateDetails(inmate),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  backgroundColor: Colors.blueGrey[100],
+                  radius: 28,
+                  child: Text(
+                    inmate.fullName.isEmpty ? '?' : inmate.fullName[0].toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.blueGrey[900],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        inmate.fullName,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey[900],
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Icon(Icons.badge_outlined, size: 14, color: Colors.grey[500]),
+                          const SizedBox(width: 6),
+                          Text(
+                            inmate.inmateId,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Icon(Icons.home_outlined, size: 14, color: Colors.grey[500]),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${inmate.block}-${inmate.cell}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: statusColor.withOpacity(0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: statusColor.withOpacity(0.3)),
+                  ),
+                  child: Text(
+                    inmate.status.toUpperCase(),
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: statusColor,
+                    ),
+                  ),
+                ),
               ],
             ),
+          ),
+        ),
+      ),
     );
   }
 }

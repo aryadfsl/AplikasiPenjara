@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'page/login_page.dart';
-import 'page/admin_dashboard.dart';
-import 'page/user_dashboard_page.dart';
+import 'page/dashboard_admin_page.dart';
+import 'page/dahsboard_user_page.dart';
 import 'service/auth_service.dart';
 import 'service/firebase_service.dart';
 import 'package:device_preview/device_preview.dart';
@@ -132,7 +132,7 @@ class RoleSelectionScreen extends StatelessWidget {
                       final authService = Provider.of<AuthService>(context, listen: false);
                       authService.setAdminUser();
                       Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (_) => const AdminDashboard()),
+                        MaterialPageRoute(builder: (_) => AdminDashboard()),
                       );
                     },
                     style: ElevatedButton.styleFrom(

@@ -200,6 +200,12 @@ class FirebaseService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> deleteSchedule(String scheduleId) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    _schedules.removeWhere((s) => s.id == scheduleId);
+    notifyListeners();
+  }
+
   // Complaint methods
   Future<List<Complaint>> getComplaints() async {
     await Future.delayed(const Duration(milliseconds: 300));
