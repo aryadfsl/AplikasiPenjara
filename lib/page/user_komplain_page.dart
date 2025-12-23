@@ -155,239 +155,372 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
     final statusColor = _getStatusColor(complaint.status);
     final statusIcon = _getStatusIcon(complaint.status);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    complaint.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: statusColor.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) => AlertDialog(
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                title: Text(complaint.title),
+                content: SingleChildScrollView(
+                  child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(statusIcon, size: 12, color: statusColor),
-                      const SizedBox(width: 4),
                       Text(
-                        complaint.status.toUpperCase(),
+                        'Status: ${complaint.status.toUpperCase()}',
                         style: TextStyle(
-                          fontSize: 10,
                           fontWeight: FontWeight.bold,
                           color: statusColor,
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      const Text('Deskripsi:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const SizedBox(height: 8),
+                      Text(complaint.description),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Icon(Icons.category, size: 16, color: Colors.grey[600]),
+                          const SizedBox(width: 8),
+                          Text(_getCategoryLabel(complaint.category)),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.flag, size: 16, color: Colors.grey[600]),
+                          const SizedBox(width: 8),
+                          Text('Prioritas: ${complaint.priority}'),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+                          const SizedBox(width: 8),
+                          Text(_formatDate(complaint.date)),
+                        ],
+                      ),
+                      if (complaint.actionTaken != null) ...[  
+                        const SizedBox(height: 12),
+                        const Text('Tindakan:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        Text(complaint.actionTaken!),
+                      ],
                     ],
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              complaint.description,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: const Text('Tutup'),
+                  ),
+                ],
               ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Chip(
-                  label: Text(
-                    _getCategoryLabel(complaint.category),
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  backgroundColor: Colors.blueGrey[50],
-                ),
-                Chip(
-                  label: Text(
-                    'Prioritas: ${complaint.priority}',
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  backgroundColor: complaint.priority == 'darurat' 
-                      ? Colors.red[100] 
-                      : complaint.priority == 'tinggi'
-                          ? Colors.orange[100]
-                          : Colors.green[100],
-                ),
-                Chip(
-                  label: Text(
-                    _formatDate(complaint.date),
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  backgroundColor: Colors.grey[100],
-                ),
-              ],
-            ),
-            if (complaint.processedBy != null || complaint.actionTaken != null) ...[
-              const SizedBox(height: 12),
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    if (complaint.actionTaken != null) ...[
-                      Text(
-                        'Tindakan: ${complaint.actionTaken}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                    ],
-                    if (complaint.processedBy != null)
-                      Text(
-                        'Diproses oleh: ${complaint.processedBy}',
+                    Expanded(
+                      child: Text(
+                        complaint.title,
                         style: TextStyle(
-                          fontSize: 11,
-                          color: Colors.grey[600],
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.blueGrey[900],
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: statusColor.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: statusColor.withOpacity(0.3)),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(statusIcon, size: 14, color: statusColor),
+                          const SizedBox(width: 6),
+                          Text(
+                            complaint.status.toUpperCase(),
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.bold,
+                              color: statusColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-              ),
-            ],
-          ],
+                const SizedBox(height: 12),
+                Text(
+                  complaint.description,
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey[700],
+                    height: 1.5,
+                  ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.blueGrey[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        _getCategoryLabel(complaint.category),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blueGrey[700],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: complaint.priority == 'darurat' 
+                            ? Colors.red[50]
+                            : complaint.priority == 'tinggi'
+                                ? Colors.orange[50]
+                                : Colors.green[50],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        complaint.priority.toUpperCase(),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: complaint.priority == 'darurat' 
+                              ? Colors.red[700]
+                              : complaint.priority == 'tinggi'
+                                  ? Colors.orange[700]
+                                  : Colors.green[700],
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      _formatDate(complaint.date),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[500],
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 
   Widget _buildComplaintForm() {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Kirim Keluhan Baru',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            blurRadius: 12,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Kirim Keluhan Baru',
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.blueGrey[900],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _titleController,
-                decoration: const InputDecoration(
-                  labelText: 'Judul Keluhan',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Judul harus diisi';
-                  }
-                  return null;
-                },
+            ),
+            const SizedBox(height: 20),
+            TextFormField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                labelText: 'Judul Keluhan',
+                prefixIcon: const Icon(Icons.title),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Deskripsi Keluhan',
-                  border: OutlineInputBorder(),
-                  alignLabelWithHint: true,
-                ),
-                maxLines: 3,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Deskripsi harus diisi';
-                  }
-                  return null;
-                },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Judul harus diisi';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _descriptionController,
+              decoration: InputDecoration(
+                labelText: 'Deskripsi Keluhan',
+                prefixIcon: const Icon(Icons.description),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                alignLabelWithHint: true,
+                filled: true,
+                fillColor: Colors.grey[50],
               ),
-              const SizedBox(height: 16),
-              Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: _selectedCategory,
-                      decoration: const InputDecoration(
-                        labelText: 'Kategori',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: _categories.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Text(_getCategoryLabel(category)),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCategory = value!;
-                        });
-                      },
+              maxLines: 4,
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Deskripsi harus diisi';
+                }
+                return null;
+              },
+            ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _selectedCategory,
+                    decoration: InputDecoration(
+                      labelText: 'Kategori',
+                      prefixIcon: const Icon(Icons.category),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      filled: true,
+                      fillColor: Colors.grey[50],
                     ),
+                    items: _categories.map((category) {
+                      return DropdownMenuItem(
+                        value: category,
+                        child: Text(_getCategoryLabel(category)),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedCategory = value!;
+                      });
+                    },
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      initialValue: _selectedPriority,
-                      decoration: const InputDecoration(
-                        labelText: 'Prioritas',
-                        border: OutlineInputBorder(),
-                      ),
-                      items: _priorities.map((priority) {
-                        return DropdownMenuItem(
-                          value: priority['value'],
-                          child: Text(priority['label']!),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedPriority = value!;
-                        });
-                      },
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: DropdownButtonFormField<String>(
+                    initialValue: _selectedPriority,
+                    decoration: InputDecoration(
+                      labelText: 'Prioritas',
+                      prefixIcon: const Icon(Icons.flag),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      filled: true,
+                      fillColor: Colors.grey[50],
                     ),
+                    items: _priorities.map((priority) {
+                      return DropdownMenuItem(
+                        value: priority['value'],
+                        child: Text(priority['label']!),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPriority = value!;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              width: double.infinity,
+              height: 54,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [Colors.blueGrey[800]!, Colors.blueGrey[700]!],
+                ),
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blueGrey.withOpacity(0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _isSubmitting ? null : _submitComplaint,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blueGrey,
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(12),
+                clipBehavior: Clip.antiAlias,
+                child: InkWell(
+                  onTap: _isSubmitting ? null : _submitComplaint,
+                  child: Flex(
+                    direction: Axis.horizontal,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (_isSubmitting)
+                        const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        )
+                      else
+                        const Icon(Icons.send_rounded, color: Colors.white),
+                      const SizedBox(width: 8),
+                      Text(
+                        _isSubmitting ? 'Mengirim...' : 'Kirim Keluhan',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
-                  child: _isSubmitting
-                      ? const CircularProgressIndicator(color: Colors.white)
-                      : const Text('Kirim Keluhan'),
                 ),
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -406,6 +539,7 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.grey[50],
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
@@ -413,30 +547,42 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
               child: ListView(
                 padding: const EdgeInsets.all(16),
                 children: [
-                  Card(
-                    color: Colors.blueGrey[50],
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.08),
+                          blurRadius: 12,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(20),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Keluhan Fasilitas',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 26,
                               fontWeight: FontWeight.bold,
-                              color: Colors.blueGrey[800],
+                              color: Colors.blueGrey[900],
+                              letterSpacing: -0.5,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Laporkan masalah fasilitas penjara',
+                            'Laporkan dan pantau masalah fasilitas',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 15,
                               color: Colors.grey[600],
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                          const SizedBox(height: 16),
+                          const SizedBox(height: 20),
                           Row(
                             children: [
                               Expanded(
@@ -462,38 +608,45 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   _buildComplaintForm(),
-                  const SizedBox(height: 16),
-                  const Text(
+                  const SizedBox(height: 24),
+                  Text(
                     'Riwayat Keluhan',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: Colors.blueGrey[900],
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 16),
                   if (_userComplaints.isEmpty)
                     Container(
                       padding: const EdgeInsets.all(40),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
                       child: Column(
                         children: [
                           Icon(
                             Icons.report_problem,
-                            size: 60,
-                            color: Colors.grey[400],
+                            size: 64,
+                            color: Colors.grey[300],
                           ),
                           const SizedBox(height: 16),
                           Text(
                             'Belum ada keluhan',
                             style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.grey[800],
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Kirim keluhan pertama Anda',
+                            'Kirim keluhan pertama Anda dengan menggunakan formulir di atas',
+                            textAlign: TextAlign.center,
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.grey[500],
@@ -506,6 +659,7 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                     Column(
                       children: _userComplaints.map(_buildComplaintCard).toList(),
                     ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),

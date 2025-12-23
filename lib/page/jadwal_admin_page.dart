@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/schedule.dart';
 import '../models/user.dart';
 import '../service/firebase_service.dart';
+import 'schedule_detail_page.dart';
 
 class AdminScheduleManagement extends StatefulWidget {
   const AdminScheduleManagement({super.key});
@@ -71,7 +72,8 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
       builder: (context) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: const Text('Tambah Jadwal Baru'),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            title: const Text('Tambah Jadwal Baru', style: TextStyle(fontWeight: FontWeight.bold)),
             content: SizedBox(
               width: double.maxFinite,
               child: Form(
@@ -81,9 +83,12 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                   children: [
                     TextFormField(
                       controller: _titleController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Judul Kegiatan',
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.title),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        filled: true,
+                        fillColor: Colors.grey[50],
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -92,12 +97,15 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _descriptionController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Deskripsi',
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.description),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        filled: true,
+                        fillColor: Colors.grey[50],
                       ),
                       maxLines: 3,
                       validator: (value) {
@@ -107,7 +115,7 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     InkWell(
                       onTap: () async {
                         final date = await showDatePicker(
@@ -123,38 +131,43 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                         }
                       },
                       child: Container(
-                        padding: const EdgeInsets.all(12),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(4),
+                          borderRadius: BorderRadius.circular(12),
+                          color: Colors.grey[50],
                         ),
                         child: Row(
                           children: [
-                            const Icon(Icons.calendar_today),
+                            const Icon(Icons.calendar_today, color: Colors.grey),
                             const SizedBox(width: 12),
                             Text(
                               _selectedDate == null
                                   ? 'Pilih Tanggal'
                                   : _formatDate(_selectedDate!),
+                              style: const TextStyle(fontSize: 16),
                             ),
                           ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     Row(
                       children: [
                         Expanded(
                           child: TextFormField(
                             controller: _startTimeController,
-                            decoration: const InputDecoration(
-                              labelText: 'Waktu Mulai',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: 'Mulai',
+                              prefixIcon: const Icon(Icons.access_time),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              filled: true,
+                              fillColor: Colors.grey[50],
                               hintText: 'HH:MM',
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Waktu mulai harus diisi';
+                                return 'Wajib diisi';
                               }
                               return null;
                             },
@@ -164,14 +177,17 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                         Expanded(
                           child: TextFormField(
                             controller: _endTimeController,
-                            decoration: const InputDecoration(
-                              labelText: 'Waktu Selesai',
-                              border: OutlineInputBorder(),
+                            decoration: InputDecoration(
+                              labelText: 'Selesai',
+                              prefixIcon: const Icon(Icons.access_time_filled),
+                              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                              filled: true,
+                              fillColor: Colors.grey[50],
                               hintText: 'HH:MM',
                             ),
                             validator: (value) {
                               if (value == null || value.isEmpty) {
-                                return 'Waktu selesai harus diisi';
+                                return 'Wajib diisi';
                               }
                               return null;
                             },
@@ -179,12 +195,15 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _locationController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Lokasi',
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.location_on),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        filled: true,
+                        fillColor: Colors.grey[50],
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -193,12 +212,15 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
                       initialValue: _selectedType,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Jenis Kegiatan',
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.category),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        filled: true,
+                        fillColor: Colors.grey[50],
                       ),
                       items: _types.map((type) {
                         return DropdownMenuItem(
@@ -212,12 +234,15 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                         });
                       },
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     TextFormField(
                       controller: _instructorController,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Instruktur/Petugas',
-                        border: OutlineInputBorder(),
+                        prefixIcon: const Icon(Icons.person),
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                        filled: true,
+                        fillColor: Colors.grey[50],
                       ),
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -226,31 +251,29 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        Checkbox(
-                          value: _isMandatory,
-                          onChanged: (value) {
-                            setState(() {
-                              _isMandatory = value!;
-                            });
-                          },
-                        ),
-                        const Text('Wajib diikuti'),
-                      ],
+                    const SizedBox(height: 16),
+                    SwitchListTile(
+                      title: const Text('Wajib diikuti'),
+                      value: _isMandatory,
+                      onChanged: (value) {
+                        setState(() {
+                          _isMandatory = value;
+                        });
+                      },
+                      secondary: const Icon(Icons.priority_high),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 16),
                     const Text(
                       'Pilih Peserta (opsional):',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
                     Container(
-                      height: 200,
+                      height: 150,
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(12),
+                        color: Colors.grey[50],
                       ),
                       child: ListView.builder(
                         itemCount: _inmates.length,
@@ -288,6 +311,11 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                     Navigator.pop(context);
                   }
                 },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueGrey,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
                 child: const Text('Simpan'),
               ),
             ],
@@ -348,121 +376,177 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
   Color _getScheduleColor(String type) {
     switch (type) {
       case 'kerja':
-        return Colors.blue;
+        return Colors.blueGrey[800]!;
       case 'olahraga':
-        return Colors.green;
+        return Colors.blueGrey[800]!;
       case 'pendidikan':
-        return Colors.purple;
+        return Colors.blueGrey[800]!;
       case 'ibadah':
-        return Colors.orange;
+        return Colors.blueGrey[800]!;
       case 'makan':
-        return Colors.red;
+        return Colors.blueGrey[800]!;
       default:
-        return Colors.grey;
+        return Colors.blueGrey[800]!;
     }
   }
+
 
   Widget _buildScheduleCard(Schedule schedule) {
     final color = _getScheduleColor(schedule.type);
 
-    return Card(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.08),
+            spreadRadius: 2,
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(16),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ScheduleDetailPage(schedule: schedule),
+            ),
+          ),
+          child: IntrinsicHeight(
+            child: Row(
               children: [
-                Expanded(
-                  child: Text(
-                    schedule.title,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  width: 6,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    _getTypeLabel(schedule.type).toUpperCase(),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: color,
+                    color: color,
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [color, color.withOpacity(0.6)],
                     ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Text(
-              schedule.description,
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[700],
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                schedule.title,
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: color.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                _getTypeLabel(schedule.type),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: color,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      const SizedBox(height: 8),
+                      Text(
+                        schedule.description,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          height: 1.5,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Icon(Icons.access_time_rounded,
+                              size: 16, color: Colors.grey[500]),
+                          const SizedBox(width: 6),
+                          Text(
+                            '${schedule.startTime} - ${schedule.endTime}',
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.grey[700]),
+                          ),
+                          const SizedBox(width: 16),
+                          Icon(Icons.location_on_outlined,
+                              size: 16, color: Colors.grey[500]),
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              schedule.location,
+                              style: TextStyle(
+                                  fontSize: 13, color: Colors.grey[700]),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        children: [
+                          Icon(Icons.person_outline,
+                              size: 16, color: Colors.grey[500]),
+                          const SizedBox(width: 6),
+                          Text(
+                            schedule.instructor,
+                            style: TextStyle(
+                                fontSize: 13, color: Colors.grey[700]),
+                          ),
+                          const Spacer(),
+                          if (schedule.isMandatory)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 8, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Colors.red.withOpacity(0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: Colors.red.withOpacity(0.2)),
+                              ),
+                              child: const Text(
+                                'Wajib',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                Chip(
-                  label: Text(
-                    _formatDate(schedule.date),
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  backgroundColor: Colors.grey[100],
-                ),
-                Chip(
-                  label: Text(
-                    '${schedule.startTime} - ${schedule.endTime}',
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  backgroundColor: Colors.blue[100],
-                ),
-                Chip(
-                  label: Text(
-                    schedule.location,
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  backgroundColor: Colors.green[100],
-                ),
-                Chip(
-                  label: Text(
-                    '${schedule.participants.length} peserta',
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  backgroundColor: Colors.orange[100],
-                ),
-                Chip(
-                  label: Text(
-                    schedule.isMandatory ? 'Wajib' : 'Opsional',
-                    style: const TextStyle(fontSize: 10),
-                  ),
-                  backgroundColor: schedule.isMandatory 
-                      ? Colors.red[100] 
-                      : Colors.green[100],
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Instruktur: ${schedule.instructor}',
-              style: TextStyle(
-                fontSize: 12,
-                color: Colors.grey[600],
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
+      ),
       ),
     );
   }
@@ -472,6 +556,9 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
       SnackBar(
         content: Text(message),
         backgroundColor: color,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        margin: const EdgeInsets.all(10),
         duration: const Duration(seconds: 2),
       ),
     );
@@ -480,38 +567,40 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+      backgroundColor: Colors.grey[50],
+      floatingActionButton: FloatingActionButton.extended(
         onPressed: _showAddScheduleDialog,
-        backgroundColor: Colors.blueGrey,
-        child: const Icon(Icons.add),
+        backgroundColor: Colors.blueGrey[800],
+        elevation: 4,
+        icon: const Icon(Icons.add, color: Colors.white),
+        label: const Text('Jadwal Baru', style: TextStyle(color: Colors.white)),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(
               onRefresh: _loadData,
-              child: ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  Card(
-                    color: Colors.blueGrey[50],
+              child: CustomScrollView(
+                slivers: [
+                  SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
                             'Manajemen Jadwal',
                             style: TextStyle(
-                              fontSize: 24,
+                              fontSize: 28,
                               fontWeight: FontWeight.bold,
-                              color: Colors.blueGrey[800],
+                              color: Colors.blueGrey[900],
+                              letterSpacing: -0.5,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Total: ${_schedules.length} jadwal',
+                            'Kelola kegiatan dan rutinitas harian',
                             style: TextStyle(
-                              fontSize: 14,
+                              fontSize: 16,
                               color: Colors.grey[600],
                             ),
                           ),
@@ -519,40 +608,58 @@ class _AdminScheduleManagementState extends State<AdminScheduleManagement> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
                   if (_schedules.isEmpty)
-                    Container(
-                      padding: const EdgeInsets.all(40),
-                      child: Column(
-                        children: [
-                          Icon(
-                            Icons.event_note,
-                            size: 60,
-                            color: Colors.grey[400],
-                          ),
-                          const SizedBox(height: 16),
-                          const Text(
-                            'Belum ada jadwal',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
+                    SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(24),
+                              decoration: BoxDecoration(
+                                color: Colors.blueGrey[50],
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                Icons.event_note_rounded,
+                                size: 64,
+                                color: Colors.blueGrey[200],
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'Tambahkan jadwal baru',
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[500],
+                            const SizedBox(height: 24),
+                            Text(
+                              'Belum ada jadwal',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[800],
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 8),
+                            Text(
+                              'Tekan tombol + untuk menambahkan',
+                              style: TextStyle(
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     )
                   else
-                    Column(
-                      children: _schedules.map(_buildScheduleCard).toList(),
+                    SliverPadding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) =>
+                              _buildScheduleCard(_schedules[index]),
+                          childCount: _schedules.length,
+                        ),
+                      ),
                     ),
+                  // Add some bottom padding for FAB
+                  const SliverToBoxAdapter(child: SizedBox(height: 80)),
                 ],
               ),
             ),
