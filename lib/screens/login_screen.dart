@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../service/auth_service.dart';
 import '../page/dashboard_admin_page.dart';
 import '../page/dahsboard_user_page.dart';
+import '../page/dashboard_health_page.dart';
 
 class LoginController {
   final TextEditingController emailController = TextEditingController();
@@ -64,6 +65,11 @@ class LoginController {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => AdminDashboard()),
+      );
+    } else if (authService.currentUser?.role == 'health') {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HealthDashboard()),
       );
     } else {
       Navigator.pushReplacement(

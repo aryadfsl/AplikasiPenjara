@@ -4,10 +4,10 @@ import '../models/request.dart';
 import '../service/firebase_service.dart';
 import '../service/auth_service.dart';
 
-class AdminRequestManagementController {
+class HealthRequestManagementController {
   final searchController = TextEditingController();
   final adminNoteController = TextEditingController();
-  
+
   String selectedStatus = 'pending';
   List<RequestModel> filteredRequests = [];
   List<RequestModel> allRequests = [];
@@ -15,16 +15,23 @@ class AdminRequestManagementController {
 
   Future<void> loadRequests(BuildContext context) async {
     try {
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final firebaseService = Provider.of<FirebaseService>(
+        context,
+        listen: false,
+      );
       final allRequestsFromDb = await firebaseService.getRequests();
-      
-      // Filter: admin tidak boleh lihat pengajuan kesehatan
-      allRequests = allRequestsFromDb.where((r) => r.type != 'kesehatan').toList();
-      filteredRequests = allRequests.where((r) => r.status == 'pending').toList();
+
+      // Filter hanya pengajuan kesehatan
+      allRequests = allRequestsFromDb
+          .where((r) => r.type == 'kesehatan')
+          .toList();
+      filteredRequests = allRequests
+          .where((r) => r.status == 'pending')
+          .toList();
       isLoading = false;
     } catch (e) {
       isLoading = false;
-      print('Error loading requests: $e');
+      print('Error loading health requests: $e');
     }
   }
 
@@ -37,11 +44,14 @@ class AdminRequestManagementController {
 
     if (searchController.text.isNotEmpty) {
       final query = searchController.text.toLowerCase();
-      filtered = filtered.where((r) =>
-          r.title.toLowerCase().contains(query) ||
-          r.description.toLowerCase().contains(query) ||
-          r.userName.toLowerCase().contains(query) ||
-          r.type.toLowerCase().contains(query)).toList();
+      filtered = filtered
+          .where(
+            (r) =>
+                r.title.toLowerCase().contains(query) ||
+                r.description.toLowerCase().contains(query) ||
+                r.userName.toLowerCase().contains(query),
+          )
+          .toList();
     }
 
     filteredRequests = filtered;
@@ -54,11 +64,19 @@ class AdminRequestManagementController {
     String adminNote,
   ) async {
     try {
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final firebaseService = Provider.of<FirebaseService>(
+        context,
+        listen: false,
+      );
       final authService = Provider.of<AuthService>(context, listen: false);
-      final adminName = authService.currentUser?.fullName ?? 'Admin';
-      
-      await firebaseService.updateRequestStatus(requestId, newStatus, adminName);
+      final healthStaffName =
+          authService.currentUser?.fullName ?? 'Petugas Kesehatan';
+
+      await firebaseService.updateRequestStatus(
+        requestId,
+        newStatus,
+        healthStaffName,
+      );
       await loadRequests(context);
     } catch (e) {
       print('Error updating request: $e');
@@ -72,14 +90,8 @@ class AdminRequestManagementController {
 
   String getTypeLabel(String type) {
     switch (type) {
-      case 'cuti':
-        return 'Cuti';
       case 'kesehatan':
         return 'Kesehatan';
-      case 'keluarga':
-        return 'Kunjungan Keluarga';
-      case 'lainnya':
-        return 'Lainnya';
       default:
         return type;
     }

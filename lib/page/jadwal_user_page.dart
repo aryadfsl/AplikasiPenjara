@@ -26,7 +26,10 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
   Future<void> _loadUserSchedules() async {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final firebaseService = Provider.of<FirebaseService>(
+        context,
+        listen: false,
+      );
       final user = authService.currentUser!;
 
       _userSchedules = await firebaseService.getUserSchedules(user.id);
@@ -79,7 +82,6 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
   }
 
   // date formatting helper not used here (kept for reference)
-
 
   Widget _buildScheduleCard(Schedule schedule) {
     final color = _getScheduleColor(schedule.type);
@@ -137,7 +139,10 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: color.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(12),
@@ -180,8 +185,8 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
                       schedule.isMandatory ? 'Wajib' : 'Opsional',
                       style: const TextStyle(fontSize: 10),
                     ),
-                    backgroundColor: schedule.isMandatory 
-                        ? Colors.red[100] 
+                    backgroundColor: schedule.isMandatory
+                        ? Colors.red[100]
                         : Colors.green[100],
                   ),
                 ],
@@ -215,13 +220,7 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
       children: [
         Icon(icon, size: 14, color: Colors.grey[600]),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
-          ),
-        ),
+        Text(text, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
       ],
     );
   }
@@ -229,9 +228,8 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
   void _showAddScheduleDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AddScheduleDialog(
-        onScheduleAdded: _loadUserSchedules,
-      ),
+      builder: (context) =>
+          AddScheduleDialog(onScheduleAdded: _loadUserSchedules),
     );
   }
 
@@ -267,6 +265,8 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
                               fontWeight: FontWeight.bold,
                               color: Colors.blueGrey[800],
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -275,6 +275,8 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
                               fontSize: 16,
                               color: Colors.grey[600],
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 16),
                           Row(
@@ -316,10 +318,7 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
                           const SizedBox(height: 16),
                           const Text(
                             'Tidak ada jadwal',
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
+                            style: TextStyle(fontSize: 16, color: Colors.grey),
                           ),
                           const SizedBox(height: 8),
                           Text(
@@ -370,10 +369,7 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
               Text(
                 value,
