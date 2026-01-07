@@ -129,10 +129,10 @@ class RoleSelectionScreen extends StatelessWidget {
                   height: 60,
                   child: ElevatedButton(
                     onPressed: () {
-                      final authService = Provider.of<AuthService>(context, listen: false);
-                      authService.setAdminUser();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (_) => AdminDashboard()),
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => LoginScreen(selectedRole: 'admin'),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -158,16 +158,16 @@ class RoleSelectionScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                // User button
+                // Narapidana button
                 SizedBox(
                   width: double.infinity,
                   height: 60,
                   child: ElevatedButton(
                     onPressed: () {
-                      final authService = Provider.of<AuthService>(context, listen: false);
-                      authService.setUserUser();
-                      Navigator.of(context).pushReplacement(
-                        MaterialPageRoute(builder: (_) => UserDashboard()),
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => LoginScreen(selectedRole: 'user'),
+                        ),
                       );
                     },
                     style: ElevatedButton.styleFrom(
@@ -192,19 +192,38 @@ class RoleSelectionScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                const SizedBox(height: 40),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(builder: (_) => LoginScreen()),
-                    );
-                  },
-                  child: const Text(
-                    'Atau Login dengan akun',
-                    style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 14,
-                      decoration: TextDecoration.underline,
+                const SizedBox(height: 20),
+                // Kesehatan button
+                SizedBox(
+                  width: double.infinity,
+                  height: 60,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => LoginScreen(selectedRole: 'health'),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.medical_services, size: 28),
+                        SizedBox(width: 12),
+                        Text(
+                          'Kesehatan',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),

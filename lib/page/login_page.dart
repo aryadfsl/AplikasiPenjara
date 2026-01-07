@@ -4,7 +4,9 @@ import '../service/auth_service.dart';
 import '../screens/login_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final String? selectedRole;
+  
+  const LoginScreen({super.key, this.selectedRole});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -30,6 +32,17 @@ class _LoginScreenState extends State<LoginScreen> {
     final authService = Provider.of<AuthService>(context);
 
     return Scaffold(
+      backgroundColor: Colors.blueGrey[900],
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -213,11 +226,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Row(
+                        Row(
                           children: [
-                            Icon(Icons.info_outline, color: Colors.white70, size: 20),
-                            SizedBox(width: 8),
-                            Text(
+                            const Icon(Icons.info_outline, color: Colors.white70, size: 20),
+                            const SizedBox(width: 8),
+                            const Text(
                               'Akun Demo',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
@@ -225,12 +238,37 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: Colors.white,
                               ),
                             ),
+                            if (widget.selectedRole != null) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: _getRoleColor(widget.selectedRole!),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Text(
+                                  _getRoleName(widget.selectedRole!),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                         const SizedBox(height: 12),
-                        _buildDemoAccountRow('Admin', 'admin@penjara.com', 'admin123'),
-                        const SizedBox(height: 8),
-                        _buildDemoAccountRow('Narapidana', 'narapidana1@penjara.com', 'user123'),
+                        if (widget.selectedRole == null || widget.selectedRole == 'admin')
+                          _buildDemoAccountRow('Admin', 'admin@penjara.com', 'admin123'),
+                        if (widget.selectedRole == null || widget.selectedRole == 'admin')
+                          const SizedBox(height: 8),
+                        if (widget.selectedRole == null || widget.selectedRole == 'user')
+                          _buildDemoAccountRow('Narapidana', 'narapidana1@penjara.com', 'user123'),
+                        if (widget.selectedRole == null || widget.selectedRole == 'user')
+                          const SizedBox(height: 8),
+                        if (widget.selectedRole == null || widget.selectedRole == 'health')
+                          _buildDemoAccountRow('Kesehatan', 'kesehatan@penjara.com', 'health123'),
                       ],
                     ),
                   ),
@@ -269,5 +307,31 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       ],
     );
+  }
+
+  String _getRoleName(String role) {
+    switch (role) {
+      case 'admin':
+        return 'Admin';
+      case 'user':
+        return 'Narapidana';
+      case 'health':
+        return 'Kesehatan';
+      default:
+        return '';
+    }
+  }
+
+  Color _getRoleColor(String role) {
+    switch (role) {
+      case 'admin':
+        return Colors.deepOrange;
+      case 'user':
+        return Colors.blue;
+      case 'health':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
   }
 }

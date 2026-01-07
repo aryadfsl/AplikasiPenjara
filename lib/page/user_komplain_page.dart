@@ -15,14 +15,21 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _categories = ['air', 'listrik', 'sanitasi', 'makanan', 'kamar', 'lainnya'];
+  final _categories = [
+    'air',
+    'listrik',
+    'sanitasi',
+    'makanan',
+    'kamar',
+    'lainnya',
+  ];
   final _priorities = [
     {'value': 'rendah', 'label': 'Rendah'},
     {'value': 'sedang', 'label': 'Sedang'},
     {'value': 'tinggi', 'label': 'Tinggi'},
     {'value': 'darurat', 'label': 'Darurat'},
   ];
-  
+
   String _selectedCategory = 'air';
   String _selectedPriority = 'sedang';
   bool _isSubmitting = false;
@@ -38,7 +45,10 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
   Future<void> _loadUserComplaints() async {
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final firebaseService = Provider.of<FirebaseService>(
+        context,
+        listen: false,
+      );
       final user = authService.currentUser!;
 
       _userComplaints = await firebaseService.getUserComplaints(user.id);
@@ -63,7 +73,10 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
 
     try {
       final authService = Provider.of<AuthService>(context, listen: false);
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final firebaseService = Provider.of<FirebaseService>(
+        context,
+        listen: false,
+      );
       final user = authService.currentUser!;
 
       final complaint = Complaint(
@@ -177,7 +190,9 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
             showDialog(
               context: context,
               builder: (context) => AlertDialog(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 title: Text(complaint.title),
                 content: SingleChildScrollView(
                   child: Column(
@@ -192,13 +207,20 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      const Text('Deskripsi:', style: TextStyle(fontWeight: FontWeight.bold)),
+                      const Text(
+                        'Deskripsi:',
+                        style: TextStyle(fontWeight: FontWeight.bold),
+                      ),
                       const SizedBox(height: 8),
                       Text(complaint.description),
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          Icon(Icons.category, size: 16, color: Colors.grey[600]),
+                          Icon(
+                            Icons.category,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
                           const SizedBox(width: 8),
                           Text(_getCategoryLabel(complaint.category)),
                         ],
@@ -214,14 +236,21 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          Icon(Icons.calendar_today, size: 16, color: Colors.grey[600]),
+                          Icon(
+                            Icons.calendar_today,
+                            size: 16,
+                            color: Colors.grey[600],
+                          ),
                           const SizedBox(width: 8),
                           Text(_formatDate(complaint.date)),
                         ],
                       ),
-                      if (complaint.actionTaken != null) ...[  
+                      if (complaint.actionTaken != null) ...[
                         const SizedBox(height: 12),
-                        const Text('Tindakan:', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text(
+                          'Tindakan:',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                         const SizedBox(height: 8),
                         Text(complaint.actionTaken!),
                       ],
@@ -258,7 +287,10 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
                       decoration: BoxDecoration(
                         color: statusColor.withOpacity(0.15),
                         borderRadius: BorderRadius.circular(20),
@@ -297,7 +329,10 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                 Row(
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.blueGrey[50],
                         borderRadius: BorderRadius.circular(8),
@@ -313,24 +348,27 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: complaint.priority == 'darurat' 
+                        color: complaint.priority == 'darurat'
                             ? Colors.red[50]
                             : complaint.priority == 'tinggi'
-                                ? Colors.orange[50]
-                                : Colors.green[50],
+                            ? Colors.orange[50]
+                            : Colors.green[50],
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         complaint.priority.toUpperCase(),
                         style: TextStyle(
                           fontSize: 12,
-                          color: complaint.priority == 'darurat' 
+                          color: complaint.priority == 'darurat'
                               ? Colors.red[700]
                               : complaint.priority == 'tinggi'
-                                  ? Colors.orange[700]
-                                  : Colors.green[700],
+                              ? Colors.orange[700]
+                              : Colors.green[700],
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -338,10 +376,7 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                     const Spacer(),
                     Text(
                       _formatDate(complaint.date),
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 12, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -375,10 +410,12 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
             Text(
               'Kirim Keluhan Baru',
               style: TextStyle(
-                fontSize: 20,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
                 color: Colors.blueGrey[900],
               ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 20),
             TextFormField(
@@ -386,7 +423,9 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
               decoration: InputDecoration(
                 labelText: 'Judul Keluhan',
                 prefixIcon: const Icon(Icons.title),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 filled: true,
                 fillColor: Colors.grey[50],
               ),
@@ -403,7 +442,9 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
               decoration: InputDecoration(
                 labelText: 'Deskripsi Keluhan',
                 prefixIcon: const Icon(Icons.description),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 alignLabelWithHint: true,
                 filled: true,
                 fillColor: Colors.grey[50],
@@ -425,7 +466,9 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                     decoration: InputDecoration(
                       labelText: 'Kategori',
                       prefixIcon: const Icon(Icons.category),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       filled: true,
                       fillColor: Colors.grey[50],
                     ),
@@ -449,7 +492,9 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                     decoration: InputDecoration(
                       labelText: 'Prioritas',
                       prefixIcon: const Icon(Icons.flag),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                       filled: true,
                       fillColor: Colors.grey[50],
                     ),
@@ -501,7 +546,9 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                           height: 20,
                           child: CircularProgressIndicator(
                             strokeWidth: 2,
-                            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
                           ),
                         )
                       else
@@ -567,20 +614,24 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                           Text(
                             'Keluhan Fasilitas',
                             style: TextStyle(
-                              fontSize: 26,
+                              fontSize: 24,
                               fontWeight: FontWeight.bold,
                               color: Colors.blueGrey[900],
                               letterSpacing: -0.5,
                             ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Laporkan dan pantau masalah fasilitas',
                             style: TextStyle(
-                              fontSize: 15,
+                              fontSize: 14,
                               color: Colors.grey[600],
                               fontWeight: FontWeight.w500,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
                           const SizedBox(height: 20),
                           Row(
@@ -597,7 +648,8 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                               Expanded(
                                 child: _buildStatCard(
                                   title: 'Pending',
-                                  value: '${_userComplaints.where((c) => c.status == 'pending').length}',
+                                  value:
+                                      '${_userComplaints.where((c) => c.status == 'pending').length}',
                                   color: Colors.orange,
                                   icon: Icons.pending,
                                 ),
@@ -614,10 +666,12 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                   Text(
                     'Riwayat Keluhan',
                     style: TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                       color: Colors.blueGrey[900],
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 16),
                   if (_userComplaints.isEmpty)
@@ -657,7 +711,9 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
                     )
                   else
                     Column(
-                      children: _userComplaints.map(_buildComplaintCard).toList(),
+                      children: _userComplaints
+                          .map(_buildComplaintCard)
+                          .toList(),
                     ),
                   const SizedBox(height: 20),
                 ],
@@ -694,10 +750,7 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
               Text(
                 value,

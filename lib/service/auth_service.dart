@@ -54,6 +54,25 @@ class AuthService extends ChangeNotifier {
       return true;
     }
 
+    if (email == 'kesehatan@penjara.com' && password == 'health123') {
+      currentUser = UserModel(
+        id: 'health1',
+        email: email,
+        fullName: 'Petugas Kesehatan',
+        role: 'health',
+        block: '',
+        cell: '',
+        inmateId: '',
+        crime: '',
+        sentenceStart: DateTime.now(),
+        sentenceEnd: DateTime.now().add(const Duration(days: 365)),
+        registrationDate: DateTime.now(),
+      );
+      isLoading = false;
+      notifyListeners();
+      return true;
+    }
+
     isLoading = false;
     notifyListeners();
     return false;
@@ -109,6 +128,23 @@ class AuthService extends ChangeNotifier {
       sentenceStart: DateTime.now().subtract(const Duration(days: 100)),
       sentenceEnd: DateTime.now().add(const Duration(days: 200)),
       registrationDate: DateTime.now().subtract(const Duration(days: 200)),
+    );
+    notifyListeners();
+  }
+
+  void setHealthUser() {
+    currentUser = UserModel(
+      id: 'health1',
+      email: 'kesehatan@penjara.com',
+      fullName: 'Petugas Kesehatan',
+      role: 'health',
+      block: '',
+      cell: '',
+      inmateId: '',
+      crime: '',
+      sentenceStart: DateTime.now(),
+      sentenceEnd: DateTime.now().add(const Duration(days: 365)),
+      registrationDate: DateTime.now(),
     );
     notifyListeners();
   }
