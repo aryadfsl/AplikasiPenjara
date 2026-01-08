@@ -4,6 +4,7 @@ import '../service/auth_service.dart';
 import '../screens/user_dashboard_screens.dart';
 import 'jadwal_user_page.dart';
 import 'user_komplain_page.dart';
+import 'user_health_request_page.dart';
 import 'user_profile_page.dart';
 
 class UserDashboard extends StatefulWidget {
@@ -14,23 +15,48 @@ class UserDashboard extends StatefulWidget {
 }
 
 class _UserDashboardState extends State<UserDashboard> {
-  late UserDashboardController _controller;
-  late List<Widget> _screens;
+  int _selectedIndex = 0;
 
-  @override
-  void initState() {
-    super.initState();
-    _screens = [
-      const UserScheduleScreen(),
-      const UserComplaintScreen(),
-    ];
-    _controller = UserDashboardController(_screens);
-  }
+  final List<Widget> _screens = const [
+    UserScheduleScreen(),
+    UserHealthRequestScreen(),
+    UserComplaintScreen(),
+  ];
 
   void _onItemTapped(int index) {
     setState(() {
-      _controller.onItemTapped(index);
+      _selectedIndex = index;
     });
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final authService = Provider.of<AuthService>(context, listen: false);
+    await authService.logout();
+    if (context.mounted) {
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            duration: const Duration(seconds: 2),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            backgroundColor: Colors.blueGrey[800],
+            content: const Row(
+              children: [
+                Icon(Icons.check_circle_outline, color: Colors.white),
+                SizedBox(width: 12),
+                Text('Logout berhasil'),
+              ],
+            ),
+          ),
+        );
+
+      await Future.delayed(const Duration(seconds: 2));
+      if (!context.mounted) return;
+      Navigator.pushNamedAndRemoveUntil(context, '/', (route) => false);
+    }
   }
 
   @override
@@ -159,7 +185,7 @@ class _UserDashboardState extends State<UserDashboard> {
           ],
         ),
       ),
-      body: _screens[_controller.selectedIndex],
+      body: _screens[_selectedIndex],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -182,14 +208,21 @@ class _UserDashboardState extends State<UserDashboard> {
                   activeIcon: Icons.calendar_today,
                   label: 'Jadwal',
                   index: 0,
-                  isSelected: _controller.selectedIndex == 0,
+                  isSelected: _selectedIndex == 0,
+                ),
+                _buildNavItem(
+                  icon: Icons.medical_services_outlined,
+                  activeIcon: Icons.medical_services,
+                  label: 'Kesehatan',
+                  index: 1,
+                  isSelected: _selectedIndex == 1,
                 ),
                 _buildNavItem(
                   icon: Icons.report_problem_outlined,
                   activeIcon: Icons.report_problem,
                   label: 'Keluhan',
-                  index: 1,
-                  isSelected: _controller.selectedIndex == 1,
+                  index: 2,
+                  isSelected: _selectedIndex == 2,
                 ),
               ],
             ),
@@ -213,8 +246,8 @@ class _UserDashboardState extends State<UserDashboard> {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected 
-                ? Colors.black.withOpacity(0.08) 
+            color: isSelected
+                ? Colors.black.withOpacity(0.08)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(16),
           ),
@@ -248,9 +281,7 @@ class _UserDashboardState extends State<UserDashboard> {
       context: parentContext,
       barrierDismissible: false,
       builder: (dialogContext) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         contentPadding: EdgeInsets.zero,
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -336,7 +367,7 @@ class _UserDashboardState extends State<UserDashboard> {
                         child: ElevatedButton(
                           onPressed: () async {
                             Navigator.pop(dialogContext);
-                            await _controller.logout(parentContext);
+                            await _logout(parentContext);
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Colors.red[600],
