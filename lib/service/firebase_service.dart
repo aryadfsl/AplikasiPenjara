@@ -283,6 +283,11 @@ class FirebaseService extends ChangeNotifier {
     return _requests.where((r) => r.userId == userId).toList();
   }
 
+  Future<List<RequestModel>> getHealthRequests() async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    return _requests.where((r) => r.type == 'kesehatan').toList();
+  }
+
   Future<void> addRequest(RequestModel request) async {
     await Future.delayed(const Duration(milliseconds: 300));
     final newRequest = RequestModel(
@@ -305,8 +310,9 @@ class FirebaseService extends ChangeNotifier {
   Future<void> updateRequestStatus(
     String requestId,
     String status,
-    String adminName,
-  ) async {
+    String adminName, {
+    String? adminNote,
+  }) async {
     await Future.delayed(const Duration(milliseconds: 300));
     try {
       final index = _requests.indexWhere((r) => r.id == requestId);
@@ -323,7 +329,7 @@ class FirebaseService extends ChangeNotifier {
           date: oldRequest.date,
           processedDate: DateTime.now(),
           processedBy: adminName,
-          adminNote: oldRequest.adminNote,
+          adminNote: adminNote ?? oldRequest.adminNote,
         );
         notifyListeners();
       }

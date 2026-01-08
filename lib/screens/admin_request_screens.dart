@@ -7,7 +7,7 @@ import '../service/auth_service.dart';
 class AdminRequestManagementController {
   final searchController = TextEditingController();
   final adminNoteController = TextEditingController();
-  
+
   String selectedStatus = 'pending';
   List<RequestModel> filteredRequests = [];
   List<RequestModel> allRequests = [];
@@ -15,12 +15,19 @@ class AdminRequestManagementController {
 
   Future<void> loadRequests(BuildContext context) async {
     try {
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final firebaseService = Provider.of<FirebaseService>(
+        context,
+        listen: false,
+      );
       final allRequestsFromDb = await firebaseService.getRequests();
-      
+
       // Filter: admin tidak boleh lihat pengajuan kesehatan
-      allRequests = allRequestsFromDb.where((r) => r.type != 'kesehatan').toList();
-      filteredRequests = allRequests.where((r) => r.status == 'pending').toList();
+      allRequests = allRequestsFromDb
+          .where((r) => r.type != 'kesehatan')
+          .toList();
+      filteredRequests = allRequests
+          .where((r) => r.status == 'pending')
+          .toList();
       isLoading = false;
     } catch (e) {
       isLoading = false;
@@ -37,11 +44,15 @@ class AdminRequestManagementController {
 
     if (searchController.text.isNotEmpty) {
       final query = searchController.text.toLowerCase();
-      filtered = filtered.where((r) =>
-          r.title.toLowerCase().contains(query) ||
-          r.description.toLowerCase().contains(query) ||
-          r.userName.toLowerCase().contains(query) ||
-          r.type.toLowerCase().contains(query)).toList();
+      filtered = filtered
+          .where(
+            (r) =>
+                r.title.toLowerCase().contains(query) ||
+                r.description.toLowerCase().contains(query) ||
+                r.userName.toLowerCase().contains(query) ||
+                r.type.toLowerCase().contains(query),
+          )
+          .toList();
     }
 
     filteredRequests = filtered;
@@ -54,11 +65,19 @@ class AdminRequestManagementController {
     String adminNote,
   ) async {
     try {
-      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+      final firebaseService = Provider.of<FirebaseService>(
+        context,
+        listen: false,
+      );
       final authService = Provider.of<AuthService>(context, listen: false);
       final adminName = authService.currentUser?.fullName ?? 'Admin';
-      
-      await firebaseService.updateRequestStatus(requestId, newStatus, adminName);
+
+      await firebaseService.updateRequestStatus(
+        requestId,
+        newStatus,
+        adminName,
+        adminNote: adminNote,
+      );
       await loadRequests(context);
     } catch (e) {
       print('Error updating request: $e');

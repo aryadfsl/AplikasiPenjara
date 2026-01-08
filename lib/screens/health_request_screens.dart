@@ -76,6 +76,7 @@ class HealthRequestManagementController {
         requestId,
         newStatus,
         healthStaffName,
+        adminNote: adminNote,
       );
       await loadRequests(context);
     } catch (e) {
