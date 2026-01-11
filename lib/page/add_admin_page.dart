@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../service/firebase_service.dart';
+import '../screens/edit_narapidana_screens.dart';
 import '../screens/add_narapidana_screens.dart';
 import '../models/user.dart';
+import 'export_excel.dart';
 import 'detail_page.dart';
 
 class AdminInmateManagement extends StatefulWidget {
@@ -13,6 +17,22 @@ class AdminInmateManagement extends StatefulWidget {
 }
 
 class _AdminInmateManagementState extends State<AdminInmateManagement> {
+    bool _exporting = false;
+
+    Future<void> _handleExportExcel() async {
+      setState(() => _exporting = true);
+      final filePath = await exportInmatesToExcel(_controller.allUsers);
+      setState(() => _exporting = false);
+      if (filePath != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('File Excel berhasil disimpan:\n$filePath'), backgroundColor: Colors.green),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal export Excel atau izin ditolak'), backgroundColor: Colors.red),
+        );
+      }
+    }
   late AdminInmateManagementController _controller;
   bool _isLoading = true;
   XFile? _photoFile;
@@ -35,6 +55,7 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
   }
 
   void _showAddInmateDialog() {
+    _controller.resetForm();
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -227,7 +248,7 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                       await _controller.addInmate(context);
                       Navigator.pop(context);
                       _showSnackBar(context, 'Narapidana berhasil ditambahkan', Colors.green);
-                      setState(() {});
+                      await _loadData();
                     } catch (e) {
                       _showSnackBar(context, 'Gagal menambahkan narapidana: $e', Colors.red);
                     }
@@ -265,12 +286,29 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showAddInmateDialog,
-        backgroundColor: Colors.blueGrey[800],
-        elevation: 4,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Narapidana Baru', style: TextStyle(color: Colors.white)),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton.extended(
+            onPressed: _showAddInmateDialog,
+            backgroundColor: Colors.blueGrey[800],
+            elevation: 4,
+            icon: const Icon(Icons.add, color: Colors.white),
+            label: const Text('Narapidana Baru', style: TextStyle(color: Colors.white)),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton.extended(
+            onPressed: _exporting ? null : _handleExportExcel,
+            backgroundColor: Colors.green[700],
+            elevation: 4,
+            icon: _exporting
+                ? const SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                : const Icon(Icons.download, color: Colors.white),
+            label: const Text('Export Excel', style: TextStyle(color: Colors.white)),
+            heroTag: 'exportExcel',
+          ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -364,9 +402,8 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                               : null,
                         ),
                         onChanged: (query) {
-                          setState(() {
-                            _controller.searchUsers(query);
-                          });
+                          _controller.searchUsers(query);
+                          setState(() {});
                         },
                       );
                     },
@@ -562,6 +599,49 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                       color: statusColor,
                     ),
                   ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditNarapidanaScreen(inmate: inmate),
+                      ),
+                    );
+                    if (result == true) await _loadData();
+                  },
+                  tooltip: 'Edit',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Konfirmasi Hapus'),
+                        content: Text('Yakin ingin menghapus narapidana ini?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Batal'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Hapus'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+                      await firebaseService.deleteUser(inmate.id);
+                      await _loadData();
+                      _showSnackBar(context, 'Narapidana berhasil dihapus', Colors.red);
+                    }
+                  },
+                  tooltip: 'Hapus',
                 ),
               ],
             ),

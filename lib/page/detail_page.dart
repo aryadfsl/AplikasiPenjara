@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/user.dart';
+import 'package:provider/provider.dart';
+import '../service/firebase_service.dart';
+import '../screens/edit_narapidana_screens.dart';
 
 class AdminInmateDetailPage extends StatelessWidget {
   final UserModel inmate;
@@ -252,36 +255,28 @@ class AdminInmateDetailPage extends StatelessWidget {
                     label: 'Edit Data',
                     backgroundColor: Colors.green[600]!,
                     textColor: Colors.white,
-                    onTap: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: const Row(
-                            children: [
-                              Icon(Icons.info_outline, color: Colors.white),
-                              SizedBox(width: 12),
-                              Text('Fitur edit sedang dalam pengembangan'),
-                            ],
-                          ),
-                          behavior: SnackBarBehavior.floating,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          backgroundColor: Colors.black87,
+                    onTap: () async {
+                      final result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => EditNarapidanaScreen(inmate: inmate),
                         ),
                       );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildActionButton(
-                    icon: Icons.delete_rounded,
-                    label: 'Hapus',
-                    backgroundColor: Colors.red[50]!,
-                    textColor: Colors.red[700]!,
-                    borderColor: Colors.red[200],
-                    onTap: () {
-                      _showDeleteDialog(context);
+                      if (result == true) {
+                        Navigator.pop(context, true); // Kembali ke list dan refresh
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: const Row(
+                              children: [
+                                Icon(Icons.check_circle_outline, color: Colors.white),
+                                SizedBox(width: 12),
+                                Text('Data narapidana berhasil diupdate'),
+                              ],
+                            ),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
                     },
                   ),
                 ),
@@ -482,37 +477,25 @@ class AdminInmateDetailPage extends StatelessWidget {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+              await firebaseService.deleteUser(inmate.id);
               Navigator.pop(context);
+              Navigator.pop(context, true); // Kembali ke list dan refresh
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: const Row(
                     children: [
-                      Icon(Icons.info_outline, color: Colors.white),
+                      Icon(Icons.check_circle_outline, color: Colors.white),
                       SizedBox(width: 12),
-                      Text('Fitur delete sedang dalam pengembangan'),
+                      Text('Narapidana berhasil dihapus'),
                     ],
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
                   ),
                   backgroundColor: Colors.red[700],
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[700],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
-            child: const Text(
-              'Hapus',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            child: const Text('Hapus'),
           ),
         ],
       ),

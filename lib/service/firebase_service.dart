@@ -5,6 +5,21 @@ import '../models/complaint.dart';
 import '../models/request.dart';
 
 class FirebaseService extends ChangeNotifier {
+  Future<void> deleteUser(String userId) async {
+    if (userId.isEmpty) return;
+    await Future.delayed(const Duration(milliseconds: 300));
+    _users.removeWhere((u) => u.id == userId);
+    notifyListeners();
+  }
+
+  Future<void> updateUser(UserModel user) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final idx = _users.indexWhere((u) => u.id == user.id);
+    if (idx != -1) {
+      _users[idx] = user;
+      notifyListeners();
+    }
+  }
   final List<UserModel> _users = [];
   final List<Schedule> _schedules = [];
   final List<Complaint> _complaints = [];
