@@ -225,13 +225,7 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
     );
   }
 
-  void _showAddScheduleDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) =>
-          AddScheduleDialog(onScheduleAdded: _loadUserSchedules),
-    );
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -239,11 +233,6 @@ class _UserScheduleScreenState extends State<UserScheduleScreen> {
     final user = authService.currentUser!;
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddScheduleDialog(context),
-        backgroundColor: Colors.blueGrey,
-        child: const Icon(Icons.add),
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : RefreshIndicator(

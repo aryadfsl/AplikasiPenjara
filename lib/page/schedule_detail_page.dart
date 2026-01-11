@@ -301,49 +301,7 @@ class ScheduleDetailPage extends StatelessWidget {
                   ],
 
                   // Action Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionButton(
-                          icon: Icons.edit_rounded,
-                          label: 'Edit Jadwal',
-                          backgroundColor: Colors.green[600]!,
-                          textColor: Colors.white,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Row(
-                                  children: [
-                                    Icon(Icons.info_outline, color: Colors.white),
-                                    SizedBox(width: 12),
-                                    Text('Fitur edit sedang dalam pengembangan'),
-                                  ],
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                backgroundColor: Colors.black87,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionButton(
-                          icon: Icons.delete_rounded,
-                          label: 'Hapus',
-                          backgroundColor: Colors.red[50]!,
-                          textColor: Colors.red[700]!,
-                          borderColor: Colors.red[200],
-                          onTap: () {
-                            _showDeleteDialog(context);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
+                  // Action Buttons untuk narapidana di-nonaktifkan
                   const SizedBox(height: 20),
                 ],
             ),
