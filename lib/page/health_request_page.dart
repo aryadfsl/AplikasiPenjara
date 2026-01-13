@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/request.dart';
+import '../service/pdf_export_service.dart';
 import '../screens/health_request_screens.dart';
 
 class HealthRequestManagement extends StatefulWidget {
@@ -343,6 +344,36 @@ class _HealthRequestManagementState extends State<HealthRequestManagement> {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  // Tombol Export PDF
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      try {
+                        await PdfExportService.exportKesehatanPdf(
+                          _controller.filteredRequests,
+                        );
+                      } catch (e) {
+                        _showSnackBar(
+                          context,
+                          'Gagal export PDF: $e',
+                          Colors.red,
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.picture_as_pdf),
+                    label: const Text('Export PDF'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[700],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(

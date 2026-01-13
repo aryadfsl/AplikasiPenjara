@@ -8,8 +8,18 @@ class ScheduleDetailPage extends StatelessWidget {
 
   String _formatDate(DateTime date) {
     const months = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-      'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'Mei',
+      'Jun',
+      'Jul',
+      'Agt',
+      'Sep',
+      'Okt',
+      'Nov',
+      'Des',
     ];
     return '${date.day} ${months[date.month - 1]} ${date.year}';
   }
@@ -52,16 +62,16 @@ class ScheduleDetailPage extends StatelessWidget {
         hour: int.parse(endTime.split(':')[0]),
         minute: int.parse(endTime.split(':')[1]),
       );
-      
+
       int startMinutes = start.hour * 60 + start.minute;
       int endMinutes = end.hour * 60 + end.minute;
       int duration = endMinutes - startMinutes;
-      
+
       if (duration < 0) duration += 24 * 60;
-      
+
       int hours = duration ~/ 60;
       int minutes = duration % 60;
-      
+
       if (hours > 0 && minutes > 0) {
         return '$hours jam $minutes menit';
       } else if (hours > 0) {
@@ -108,7 +118,10 @@ class ScheduleDetailPage extends StatelessWidget {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 24,
+                ),
                 child: Column(
                   children: [
                     Container(
@@ -139,7 +152,10 @@ class ScheduleDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
@@ -163,61 +179,118 @@ class ScheduleDetailPage extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                  // Quick Info Cards
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildQuickInfoCard(
-                          icon: Icons.access_time_outlined,
-                          label: 'Durasi',
-                          value: _calculateDuration(schedule.startTime, schedule.endTime),
-                          color: Colors.blue,
+                // Quick Info Cards
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildQuickInfoCard(
+                        icon: Icons.access_time_outlined,
+                        label: 'Durasi',
+                        value: _calculateDuration(
+                          schedule.startTime,
+                          schedule.endTime,
                         ),
+                        color: Colors.blue,
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildQuickInfoCard(
-                          icon: schedule.isMandatory ? Icons.star_rounded : Icons.star_outline_rounded,
-                          label: 'Status',
-                          value: schedule.isMandatory ? 'Wajib' : 'Opsional',
-                          color: schedule.isMandatory ? Colors.orange : Colors.grey,
-                        ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildQuickInfoCard(
+                        icon: schedule.isMandatory
+                            ? Icons.star_rounded
+                            : Icons.star_outline_rounded,
+                        label: 'Status',
+                        value: schedule.isMandatory ? 'Wajib' : 'Opsional',
+                        color: schedule.isMandatory
+                            ? Colors.orange
+                            : Colors.grey,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+
+                // Informasi Waktu & Lokasi
+                _buildSectionTitle(Icons.schedule_outlined, 'Waktu & Lokasi'),
+                const SizedBox(height: 12),
+                _buildInfoCard([
+                  _buildModernInfoItem(
+                    icon: Icons.calendar_today_outlined,
+                    label: 'Tanggal',
+                    value: _formatDate(schedule.date),
+                    iconColor: Colors.blue,
+                  ),
+                  _buildModernInfoItem(
+                    icon: Icons.access_time_outlined,
+                    label: 'Jam',
+                    value:
+                        '${_formatTime(schedule.startTime)} - ${_formatTime(schedule.endTime)}',
+                    iconColor: Colors.green,
+                  ),
+                  _buildModernInfoItem(
+                    icon: Icons.location_on_outlined,
+                    label: 'Lokasi',
+                    value: schedule.location,
+                    iconColor: Colors.red,
+                    isLast: true,
+                  ),
+                ]),
+                const SizedBox(height: 20),
+
+                // Deskripsi
+                _buildSectionTitle(Icons.description_outlined, 'Deskripsi'),
+                const SizedBox(height: 12),
+                Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 20,
+                        offset: const Offset(0, 4),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  child: Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      schedule.description.isNotEmpty
+                          ? schedule.description
+                          : 'Tidak ada deskripsi untuk jadwal ini.',
+                      style: TextStyle(
+                        fontSize: 15,
+                        color: Colors.grey[700],
+                        height: 1.6,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
 
-                  // Informasi Waktu & Lokasi
-                  _buildSectionTitle(Icons.schedule_outlined, 'Waktu & Lokasi'),
-                  const SizedBox(height: 12),
-                  _buildInfoCard([
-                    _buildModernInfoItem(
-                      icon: Icons.calendar_today_outlined,
-                      label: 'Tanggal',
-                      value: _formatDate(schedule.date),
-                      iconColor: Colors.blue,
-                    ),
-                    _buildModernInfoItem(
-                      icon: Icons.access_time_outlined,
-                      label: 'Jam',
-                      value: '${_formatTime(schedule.startTime)} - ${_formatTime(schedule.endTime)}',
-                      iconColor: Colors.green,
-                    ),
-                    _buildModernInfoItem(
-                      icon: Icons.location_on_outlined,
-                      label: 'Lokasi',
-                      value: schedule.location,
-                      iconColor: Colors.red,
-                      isLast: true,
-                    ),
-                  ]),
-                  const SizedBox(height: 20),
+                // Informasi Instruktur
+                _buildSectionTitle(Icons.person_outline, 'Instruktur'),
+                const SizedBox(height: 12),
+                _buildInfoCard([
+                  _buildModernInfoItem(
+                    icon: Icons.person_outline,
+                    label: 'Instruktur',
+                    value: schedule.instructor,
+                    iconColor: Colors.purple,
+                    isLast: true,
+                  ),
+                ]),
+                const SizedBox(height: 20),
 
-                  // Deskripsi
-                  _buildSectionTitle(Icons.description_outlined, 'Deskripsi'),
+                // Daftar Peserta
+                if (schedule.participants.isNotEmpty) ...[
+                  _buildSectionTitle(
+                    Icons.people_outline,
+                    'Daftar Peserta (${schedule.participants.length})',
+                  ),
                   const SizedBox(height: 12),
                   Container(
-                    width: double.infinity,
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
@@ -230,122 +303,26 @@ class ScheduleDetailPage extends StatelessWidget {
                       ],
                     ),
                     child: Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        schedule.description.isNotEmpty 
-                            ? schedule.description 
-                            : 'Tidak ada deskripsi untuk jadwal ini.',
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.grey[700],
-                          height: 1.6,
-                        ),
+                      padding: const EdgeInsets.all(16),
+                      child: ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: schedule.participants.length,
+                        separatorBuilder: (context, index) =>
+                            Divider(color: Colors.grey[100], height: 24),
+                        itemBuilder: (context, index) {
+                          return _buildParticipantItem(
+                            schedule.participants[index],
+                            index + 1,
+                          );
+                        },
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
-
-                  // Informasi Instruktur
-                  _buildSectionTitle(Icons.person_outline, 'Instruktur'),
-                  const SizedBox(height: 12),
-                  _buildInfoCard([
-                    _buildModernInfoItem(
-                      icon: Icons.person_outline,
-                      label: 'Instruktur',
-                      value: schedule.instructor,
-                      iconColor: Colors.purple,
-                      isLast: true,
-                    ),
-                  ]),
-                  const SizedBox(height: 20),
-
-                  // Daftar Peserta
-                  if (schedule.participants.isNotEmpty) ...[
-                    _buildSectionTitle(
-                      Icons.people_outline,
-                      'Daftar Peserta (${schedule.participants.length})',
-                    ),
-                    const SizedBox(height: 12),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 20,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: ListView.separated(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: schedule.participants.length,
-                          separatorBuilder: (context, index) => Divider(
-                            color: Colors.grey[100],
-                            height: 24,
-                          ),
-                          itemBuilder: (context, index) {
-                            return _buildParticipantItem(
-                              schedule.participants[index],
-                              index + 1,
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                  ],
-
-                  // Action Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionButton(
-                          icon: Icons.edit_rounded,
-                          label: 'Edit Jadwal',
-                          backgroundColor: Colors.green[600]!,
-                          textColor: Colors.white,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Row(
-                                  children: [
-                                    Icon(Icons.info_outline, color: Colors.white),
-                                    SizedBox(width: 12),
-                                    Text('Fitur edit sedang dalam pengembangan'),
-                                  ],
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                backgroundColor: Colors.black87,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionButton(
-                          icon: Icons.delete_rounded,
-                          label: 'Hapus',
-                          backgroundColor: Colors.red[50]!,
-                          textColor: Colors.red[700]!,
-                          borderColor: Colors.red[200],
-                          onTap: () {
-                            _showDeleteDialog(context);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 24),
                 ],
+                const SizedBox(height: 20),
+              ],
             ),
           ],
         ),
@@ -461,9 +438,9 @@ class ScheduleDetailPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: isLast ? null : Border(
-          bottom: BorderSide(color: Colors.grey[100]!, width: 1),
-        ),
+        border: isLast
+            ? null
+            : Border(bottom: BorderSide(color: Colors.grey[100]!, width: 1)),
       ),
       child: Row(
         children: [
@@ -535,11 +512,7 @@ class ScheduleDetailPage extends StatelessWidget {
             color: Colors.blue.withOpacity(0.1),
             borderRadius: BorderRadius.circular(10),
           ),
-          child: const Icon(
-            Icons.person_outline,
-            color: Colors.blue,
-            size: 20,
-          ),
+          child: const Icon(Icons.person_outline, color: Colors.blue, size: 20),
         ),
         const SizedBox(width: 12),
         Expanded(
@@ -569,7 +542,9 @@ class ScheduleDetailPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: borderColor != null ? Border.all(color: borderColor, width: 1.5) : null,
+        border: borderColor != null
+            ? Border.all(color: borderColor, width: 1.5)
+            : null,
         boxShadow: [
           BoxShadow(
             color: backgroundColor.withOpacity(0.3),
@@ -609,9 +584,7 @@ class ScheduleDetailPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
@@ -620,7 +593,11 @@ class ScheduleDetailPage extends StatelessWidget {
                 color: Colors.red[50],
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.warning_rounded, color: Colors.red[700], size: 24),
+              child: Icon(
+                Icons.warning_rounded,
+                color: Colors.red[700],
+                size: 24,
+              ),
             ),
             const SizedBox(width: 12),
             const Text(

@@ -67,16 +67,16 @@ class AdminInmateManagementController {
     try {
       final firebaseService = Provider.of<FirebaseService>(context, listen: false);
 
-      // Generate inmate ID based on block and cell
-      final generatedInmateId = await _generateInmateId(firebaseService, blockController.text, cellController.text);
+      // Generate inmate ID based on block and cell: Block-Cell (e.g., A-01)
+      final generatedInmateId = '${blockController.text.trim().toUpperCase()}-${cellController.text.trim().padLeft(2, '0')}';
 
       final newInmate = UserModel(
         id: '',
         email: 'inmate_${DateTime.now().millisecondsSinceEpoch}@penjara.local',
         fullName: fullNameController.text,
         role: 'user',
-        block: blockController.text,
-        cell: cellController.text,
+        block: blockController.text.trim().toUpperCase(),
+        cell: cellController.text.trim().padLeft(2, '0'),
         inmateId: generatedInmateId,
         crime: crimeController.text,
         sentenceStart: sentenceStartDate!,
@@ -91,34 +91,6 @@ class AdminInmateManagementController {
       print('Error adding inmate: $e');
       rethrow;
     }
-  }
-
-  Future<String> _generateInmateId(FirebaseService firebaseService, String block, String cell) async {
-    final users = await firebaseService.getUsers();
-
-    // Filter users with the same block and cell
-    final sameBlockCellUsers = users.where((user) =>
-        user.block.toUpperCase() == block.toUpperCase() &&
-        user.cell == cell
-    ).toList();
-
-    // Find the highest number for this block-cell combination
-    int maxNumber = 0;
-    for (final user in sameBlockCellUsers) {
-      // Extract number from inmateId like "A12-001" -> 1
-      final parts = user.inmateId.split('-');
-      if (parts.length == 2) {
-        final numberPart = parts[1];
-        final number = int.tryParse(numberPart);
-        if (number != null && number > maxNumber) {
-          maxNumber = number;
-        }
-      }
-    }
-
-    // Generate new ID: Block + Cell + "-" + (maxNumber + 1)
-    final nextNumber = (maxNumber + 1).toString().padLeft(3, '0');
-    return '${block.toUpperCase()}$cell-$nextNumber';
   }
 
   String formatDate(DateTime date) {

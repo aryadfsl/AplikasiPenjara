@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import '../screens/add_narapidana_screens.dart';
 import '../models/user.dart';
+import '../service/pdf_export_service.dart';
 import 'detail_page.dart';
 
 class AdminInmateManagement extends StatefulWidget {
@@ -49,7 +50,9 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                   children: [
                     GestureDetector(
                       onTap: () async {
-                        final XFile? image = await _imagePicker.pickImage(source: ImageSource.gallery);
+                        final XFile? image = await _imagePicker.pickImage(
+                          source: ImageSource.gallery,
+                        );
                         if (image != null) {
                           setState(() {
                             _photoFile = image;
@@ -68,22 +71,36 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                             ? FutureBuilder<Uint8List>(
                                 future: _photoFile!.readAsBytes(),
                                 builder: (context, snapshot) {
-                                  if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                                  if (snapshot.connectionState ==
+                                          ConnectionState.done &&
+                                      snapshot.hasData) {
                                     return ClipRRect(
                                       borderRadius: BorderRadius.circular(8),
-                                      child: Image.memory(snapshot.data!, fit: BoxFit.cover),
+                                      child: Image.memory(
+                                        snapshot.data!,
+                                        fit: BoxFit.cover,
+                                      ),
                                     );
                                   } else {
-                                    return const Center(child: CircularProgressIndicator());
+                                    return const Center(
+                                      child: CircularProgressIndicator(),
+                                    );
                                   }
                                 },
                               )
                             : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.camera_alt, size: 40, color: Colors.blueGrey),
+                                  Icon(
+                                    Icons.camera_alt,
+                                    size: 40,
+                                    color: Colors.blueGrey,
+                                  ),
                                   const SizedBox(height: 8),
-                                  const Text('Pilih Foto', style: TextStyle(fontSize: 12)),
+                                  const Text(
+                                    'Pilih Foto',
+                                    style: TextStyle(fontSize: 12),
+                                  ),
                                 ],
                               ),
                       ),
@@ -95,7 +112,8 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                         labelText: 'Nama Lengkap',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Wajib diisi' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Wajib diisi' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -104,7 +122,8 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                         labelText: 'ID Narapidana',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Wajib diisi' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Wajib diisi' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -113,7 +132,8 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                         labelText: 'Blok',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Wajib diisi' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Wajib diisi' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -122,7 +142,8 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                         labelText: 'Sel',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Wajib diisi' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Wajib diisi' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -131,7 +152,8 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                         labelText: 'Kasus/Kejahatan',
                         border: OutlineInputBorder(),
                       ),
-                      validator: (value) => value!.isEmpty ? 'Wajib diisi' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Wajib diisi' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -145,21 +167,25 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                           onPressed: () async {
                             final date = await showDatePicker(
                               context: context,
-                              initialDate: _controller.sentenceStartDate ?? DateTime.now(),
+                              initialDate:
+                                  _controller.sentenceStartDate ??
+                                  DateTime.now(),
                               firstDate: DateTime.now(),
                               lastDate: DateTime(2100),
                             );
                             if (date != null) {
                               setState(() {
                                 _controller.sentenceStartDate = date;
-                                _controller.sentenceStartDateController.text = _controller.formatDate(date);
+                                _controller.sentenceStartDateController.text =
+                                    _controller.formatDate(date);
                               });
                             }
                           },
                         ),
                       ),
                       readOnly: true,
-                      validator: (value) => value!.isEmpty ? 'Wajib diisi' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Wajib diisi' : null,
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
@@ -172,32 +198,46 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                           icon: const Icon(Icons.calendar_today),
                           onPressed: () async {
                             if (_controller.sentenceStartDate == null) {
-                              _showSnackBar(context, 'Pilih tanggal mulai hukuman terlebih dahulu', Colors.red);
+                              _showSnackBar(
+                                context,
+                                'Pilih tanggal mulai hukuman terlebih dahulu',
+                                Colors.red,
+                              );
                               return;
                             }
                             final date = await showDatePicker(
                               context: context,
-                              initialDate: _controller.sentenceEndDate ?? _controller.sentenceStartDate ?? DateTime.now(),
-                              firstDate: _controller.sentenceStartDate ?? DateTime.now(),
+                              initialDate:
+                                  _controller.sentenceEndDate ??
+                                  _controller.sentenceStartDate ??
+                                  DateTime.now(),
+                              firstDate:
+                                  _controller.sentenceStartDate ??
+                                  DateTime.now(),
                               lastDate: DateTime(2100),
                             );
                             if (date != null) {
                               setState(() {
                                 _controller.sentenceEndDate = date;
-                                _controller.sentenceEndDateController.text = _controller.formatDate(date);
+                                _controller.sentenceEndDateController.text =
+                                    _controller.formatDate(date);
                               });
                             }
                           },
                         ),
                       ),
                       readOnly: true,
-                      validator: (value) => value!.isEmpty ? 'Wajib diisi' : null,
+                      validator: (value) =>
+                          value!.isEmpty ? 'Wajib diisi' : null,
                     ),
                     const SizedBox(height: 12),
                     DropdownButtonFormField(
                       initialValue: _controller.selectedStatus,
                       items: ['aktif', 'transfer', 'bebas'].map((status) {
-                        return DropdownMenuItem(value: status, child: Text(status));
+                        return DropdownMenuItem(
+                          value: status,
+                          child: Text(status),
+                        );
                       }).toList(),
                       onChanged: (value) {
                         setState(() {
@@ -226,10 +266,18 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                     try {
                       await _controller.addInmate(context);
                       Navigator.pop(context);
-                      _showSnackBar(context, 'Narapidana berhasil ditambahkan', Colors.green);
+                      _showSnackBar(
+                        context,
+                        'Narapidana berhasil ditambahkan',
+                        Colors.green,
+                      );
                       setState(() {});
                     } catch (e) {
-                      _showSnackBar(context, 'Gagal menambahkan narapidana: $e', Colors.red);
+                      _showSnackBar(
+                        context,
+                        'Gagal menambahkan narapidana: $e',
+                        Colors.red,
+                      );
                     }
                   }
                 },
@@ -246,7 +294,7 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => AdminInmateDetailPage(inmate: inmate),
+        builder: (context) => AdminInmateDetailPage(inmateId: inmate.id),
       ),
     );
   }
@@ -270,7 +318,10 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
         backgroundColor: Colors.blueGrey[800],
         elevation: 4,
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('Narapidana Baru', style: TextStyle(color: Colors.white)),
+        label: const Text(
+          'Narapidana Baru',
+          style: TextStyle(color: Colors.white),
+        ),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -329,7 +380,8 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                               Expanded(
                                 child: _buildStatCard(
                                   title: 'Aktif',
-                                  value: '${_controller.allUsers.where((u) => u.status == 'aktif').length}',
+                                  value:
+                                      '${_controller.allUsers.where((u) => u.status == 'aktif').length}',
                                   color: Colors.green,
                                   icon: Icons.check_circle,
                                 ),
@@ -341,6 +393,36 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  // Tombol Export PDF
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      try {
+                        await PdfExportService.exportNarapidanaPdf(
+                          _controller.filteredUsers,
+                        );
+                      } catch (e) {
+                        _showSnackBar(
+                          context,
+                          'Gagal export PDF: $e',
+                          Colors.red,
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.picture_as_pdf),
+                    label: const Text('Export PDF'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[700],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   StatefulBuilder(
                     builder: (context, setState) {
                       return TextField(
@@ -348,10 +430,13 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                         decoration: InputDecoration(
                           labelText: 'Cari narapidana...',
                           prefixIcon: const Icon(Icons.search),
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                           filled: true,
                           fillColor: Colors.white,
-                          suffixIcon: _controller.searchController.text.isNotEmpty
+                          suffixIcon:
+                              _controller.searchController.text.isNotEmpty
                               ? IconButton(
                                   icon: const Icon(Icons.clear),
                                   onPressed: () {
@@ -412,7 +497,9 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                   else
                     Column(
                       children: _controller.filteredUsers.map((inmate) {
-                        final statusColor = _controller.getStatusColor(inmate.status);
+                        final statusColor = _controller.getStatusColor(
+                          inmate.status,
+                        );
                         return _buildInmateCard(inmate, statusColor);
                       }).toList(),
                     ),
@@ -451,10 +538,7 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
               Text(
                 value,
@@ -499,7 +583,9 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                   backgroundColor: Colors.blueGrey[100],
                   radius: 28,
                   child: Text(
-                    inmate.fullName.isEmpty ? '?' : inmate.fullName[0].toUpperCase(),
+                    inmate.fullName.isEmpty
+                        ? '?'
+                        : inmate.fullName[0].toUpperCase(),
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
@@ -523,7 +609,11 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                       const SizedBox(height: 4),
                       Row(
                         children: [
-                          Icon(Icons.badge_outlined, size: 14, color: Colors.grey[500]),
+                          Icon(
+                            Icons.badge_outlined,
+                            size: 14,
+                            color: Colors.grey[500],
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             inmate.inmateId,
@@ -533,7 +623,11 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                             ),
                           ),
                           const SizedBox(width: 12),
-                          Icon(Icons.home_outlined, size: 14, color: Colors.grey[500]),
+                          Icon(
+                            Icons.home_outlined,
+                            size: 14,
+                            color: Colors.grey[500],
+                          ),
                           const SizedBox(width: 6),
                           Text(
                             '${inmate.block}-${inmate.cell}',
@@ -548,7 +642,10 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.15),
                     borderRadius: BorderRadius.circular(20),

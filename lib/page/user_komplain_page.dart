@@ -83,7 +83,7 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
         id: '',
         userId: user.id,
         userName: user.fullName,
-        title: _titleController.text,
+        title: _getCategoryLabel(_selectedCategory),
         description: _descriptionController.text,
         category: _selectedCategory,
         priority: _selectedPriority,
@@ -93,7 +93,6 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
 
       await firebaseService.addComplaint(complaint);
 
-      _titleController.clear();
       _descriptionController.clear();
       _selectedCategory = 'air';
       _selectedPriority = 'sedang';
@@ -418,25 +417,6 @@ class _UserComplaintScreenState extends State<UserComplaintScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 20),
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Judul Keluhan',
-                prefixIcon: const Icon(Icons.title),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.grey[50],
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Judul harus diisi';
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 16),
             TextFormField(
               controller: _descriptionController,
               decoration: InputDecoration(

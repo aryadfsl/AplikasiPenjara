@@ -183,6 +183,17 @@ class FirebaseService extends ChangeNotifier {
     }
   }
 
+  Future<void> updateUser(String userId, UserModel updatedUser) async {
+    await Future.delayed(const Duration(milliseconds: 300));
+    final index = _users.indexWhere((u) => u.id == userId);
+    if (index != -1) {
+      _users[index] = updatedUser;
+      notifyListeners();
+    } else {
+      throw Exception('User tidak ditemukan');
+    }
+  }
+
   // Schedule methods
   Future<List<Schedule>> getSchedules() async {
     await Future.delayed(const Duration(milliseconds: 300));
