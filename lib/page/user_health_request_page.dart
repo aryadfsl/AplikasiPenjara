@@ -83,16 +83,14 @@ class _UserHealthRequestScreenState extends State<UserHealthRequestScreen> {
         userId: user.id,
         userName: user.fullName,
         type: 'kesehatan',
-        title: _titleController.text,
-        description:
-            '${_getHealthTypeLabel(_selectedHealthType)}\n\n${_descriptionController.text}',
+        title: _getHealthTypeLabel(_selectedHealthType),
+        description: _descriptionController.text,
         status: 'pending',
         date: DateTime.now(),
       );
 
       await firebaseService.addRequest(request);
 
-      _titleController.clear();
       _descriptionController.clear();
       _selectedHealthType = 'pemeriksaan_umum';
 
@@ -490,25 +488,6 @@ class _UserHealthRequestScreenState extends State<UserHealthRequestScreen> {
                 setState(() {
                   _selectedHealthType = value!;
                 });
-              },
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Judul Keluhan',
-                prefixIcon: const Icon(Icons.title),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                filled: true,
-                fillColor: Colors.grey[50],
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Judul harus diisi';
-                }
-                return null;
               },
             ),
             const SizedBox(height: 16),

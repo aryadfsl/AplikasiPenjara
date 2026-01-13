@@ -1,13 +1,56 @@
 import 'package:flutter/material.dart';
-import '../models/user.dart';
 import 'package:provider/provider.dart';
+import '../models/user.dart';
 import '../service/firebase_service.dart';
-import '../screens/edit_narapidana_screens.dart';
+import 'edit_narapidana_page.dart';
 
-class AdminInmateDetailPage extends StatelessWidget {
-  final UserModel inmate;
+class AdminInmateDetailPage extends StatefulWidget {
+  final String inmateId;
 
-  const AdminInmateDetailPage({super.key, required this.inmate});
+  const AdminInmateDetailPage({super.key, required this.inmateId});
+
+  @override
+  State<AdminInmateDetailPage> createState() => _AdminInmateDetailPageState();
+}
+
+class _AdminInmateDetailPageState extends State<AdminInmateDetailPage> {
+  UserModel? inmate;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadInmateData();
+  }
+
+  Future<void> _loadInmateData() async {
+    try {
+      final firebaseService = Provider.of<FirebaseService>(
+        context,
+        listen: false,
+      );
+      final user = await firebaseService.getUser(widget.inmateId);
+
+      if (user != null) {
+        setState(() {
+          inmate = user;
+        });
+      } else {
+        throw Exception('Data narapidana tidak ditemukan');
+      }
+    } catch (e) {
+      print('ERROR loading inmate data: $e');
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal memuat data: ${e.toString()}'),
+            backgroundColor: Colors.red[700],
+            duration: const Duration(seconds: 5),
+          ),
+        );
+        Navigator.pop(context);
+      }
+    }
+  }
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
@@ -16,27 +59,27 @@ class AdminInmateDetailPage extends StatelessWidget {
   String _calculateRemainingTime(DateTime endDate) {
     final now = DateTime.now();
     final difference = endDate.difference(now);
-    
+
     if (difference.inDays < 0) {
       return 'Sudah selesai';
     }
-    
+
     final years = difference.inDays ~/ 365;
     final months = (difference.inDays % 365) ~/ 30;
     final days = (difference.inDays % 365) % 30;
-    
+
     List<String> parts = [];
     if (years > 0) parts.add('$years tahun');
     if (months > 0) parts.add('$months bulan');
     if (days > 0 || parts.isEmpty) parts.add('$days hari');
-    
+
     return parts.join(' ');
   }
 
   Color _getRemainingTimeColor(DateTime endDate) {
     final now = DateTime.now();
     final difference = endDate.difference(now);
-    
+
     if (difference.inDays < 0) return Colors.grey;
     if (difference.inDays < 90) return Colors.orange;
     if (difference.inDays < 180) return Colors.blue;
@@ -45,6 +88,23 @@ class AdminInmateDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (inmate == null) {
+      return Scaffold(
+        backgroundColor: Colors.grey[50],
+        appBar: AppBar(
+          title: const Text(
+            'Detail Narapidana',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.blueGrey[800],
+          elevation: 0,
+          iconTheme: const IconThemeData(color: Colors.white),
+        ),
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
@@ -76,7 +136,10 @@ class AdminInmateDetailPage extends StatelessWidget {
                 ],
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 24,
+                ),
                 child: Column(
                   children: [
                     Container(
@@ -97,7 +160,7 @@ class AdminInmateDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 24),
                     Text(
-                      inmate.fullName,
+                      inmate!.fullName,
                       style: const TextStyle(
                         fontSize: 26,
                         fontWeight: FontWeight.bold,
@@ -107,13 +170,16 @@ class AdminInmateDetailPage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white.withOpacity(0.2),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        'ID: ${inmate.inmateId}',
+                        'ID: ${inmate!.inmateId}',
                         style: const TextStyle(
                           fontSize: 13,
                           color: Colors.white,
@@ -131,12 +197,19 @@ class AdminInmateDetailPage extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [_getRemainingTimeColor(inmate.sentenceEnd), _getRemainingTimeColor(inmate.sentenceEnd).withOpacity(0.7)],
+                  colors: [
+                    _getRemainingTimeColor(inmate!.sentenceEnd),
+                    _getRemainingTimeColor(
+                      inmate!.sentenceEnd,
+                    ).withOpacity(0.7),
+                  ],
                 ),
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
-                    color: _getRemainingTimeColor(inmate.sentenceEnd).withOpacity(0.3),
+                    color: _getRemainingTimeColor(
+                      inmate!.sentenceEnd,
+                    ).withOpacity(0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 4),
                   ),
@@ -160,7 +233,7 @@ class AdminInmateDetailPage extends StatelessWidget {
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          _calculateRemainingTime(inmate.sentenceEnd),
+                          _calculateRemainingTime(inmate!.sentenceEnd),
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -182,64 +255,67 @@ class AdminInmateDetailPage extends StatelessWidget {
               _buildModernInfoItem(
                 icon: Icons.person_outline,
                 label: 'Nama Lengkap',
-                value: inmate.fullName,
+                value: inmate!.fullName,
                 iconColor: Colors.blue,
               ),
               _buildModernInfoItem(
                 icon: Icons.email_outlined,
-                      label: 'Email',
-                      value: inmate.email,
-                      iconColor: Colors.purple,
-                    ),
-                    _buildModernInfoItem(
-                      icon: Icons.home_outlined,
-                      label: 'Blok & Sel',
-                      value: '${inmate.block} - ${inmate.cell}',
-                      iconColor: Colors.orange,
-                      isLast: true,
-                    ),
-                  ]),
-                  const SizedBox(height: 20),
+                label: 'Email',
+                value: inmate!.email,
+                iconColor: Colors.purple,
+              ),
+              _buildModernInfoItem(
+                icon: Icons.home_outlined,
+                label: 'Blok & Sel',
+                value: '${inmate!.block} - ${inmate!.cell}',
+                iconColor: Colors.orange,
+                isLast: true,
+              ),
+            ]),
+            const SizedBox(height: 20),
 
-                  // Informasi Kasus
-                  _buildSectionTitle(Icons.gavel_outlined, 'Informasi Kasus'),
-                  const SizedBox(height: 12),
-                  _buildInfoCard([
-                    _buildModernInfoItem(
-                      icon: Icons.gavel_outlined,
-                      label: 'Jenis Kasus',
-                      value: inmate.crime,
-                      iconColor: Colors.red,
-                    ),
-                    _buildModernInfoItem(
-                      icon: Icons.calendar_today_outlined,
-                      label: 'Tanggal Mulai',
-                      value: _formatDate(inmate.sentenceStart),
-                      iconColor: Colors.green,
-                    ),
-                    _buildModernInfoItem(
-                      icon: Icons.event_outlined,
-                      label: 'Tanggal Selesai',
-                      value: _formatDate(inmate.sentenceEnd),
-                      iconColor: Colors.teal,
-                      isLast: true,
-                    ),
-                  ]),
-                  const SizedBox(height: 20),
+            // Informasi Kasus
+            _buildSectionTitle(Icons.gavel_outlined, 'Informasi Kasus'),
+            const SizedBox(height: 12),
+            _buildInfoCard([
+              _buildModernInfoItem(
+                icon: Icons.gavel_outlined,
+                label: 'Jenis Kasus',
+                value: inmate!.crime,
+                iconColor: Colors.red,
+              ),
+              _buildModernInfoItem(
+                icon: Icons.calendar_today_outlined,
+                label: 'Tanggal Mulai',
+                value: _formatDate(inmate!.sentenceStart),
+                iconColor: Colors.green,
+              ),
+              _buildModernInfoItem(
+                icon: Icons.event_outlined,
+                label: 'Tanggal Selesai',
+                value: _formatDate(inmate!.sentenceEnd),
+                iconColor: Colors.teal,
+                isLast: true,
+              ),
+            ]),
+            const SizedBox(height: 20),
             // Informasi Registrasi
-            _buildSectionTitle(Icons.verified_user_outlined, 'Informasi Registrasi'),
+            _buildSectionTitle(
+              Icons.verified_user_outlined,
+              'Informasi Registrasi',
+            ),
             const SizedBox(height: 12),
             _buildInfoCard([
               _buildModernInfoItem(
                 icon: Icons.date_range_outlined,
                 label: 'Tanggal Registrasi',
-                value: _formatDate(inmate.registrationDate),
+                value: _formatDate(inmate!.registrationDate),
                 iconColor: Colors.indigo,
               ),
               _buildModernInfoItem(
                 icon: Icons.verified_user_outlined,
                 label: 'Status',
-                value: inmate.role == 'user' ? 'Narapidana' : 'Admin',
+                value: inmate!.role == 'user' ? 'Narapidana' : 'Admin',
                 iconColor: Colors.amber,
                 isLast: true,
               ),
@@ -259,24 +335,28 @@ class AdminInmateDetailPage extends StatelessWidget {
                       final result = await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => EditNarapidanaScreen(inmate: inmate),
+                          builder: (context) =>
+                              EditNarapidanaPage(inmate: inmate!),
                         ),
                       );
+
+                      // Reload data jika edit berhasil
                       if (result == true) {
-                        Navigator.pop(context, true); // Kembali ke list dan refresh
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: const Row(
-                              children: [
-                                Icon(Icons.check_circle_outline, color: Colors.white),
-                                SizedBox(width: 12),
-                                Text('Data narapidana berhasil diupdate'),
-                              ],
-                            ),
-                            backgroundColor: Colors.green,
-                          ),
-                        );
+                        _loadInmateData();
                       }
+                    },
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: _buildActionButton(
+                    icon: Icons.delete_rounded,
+                    label: 'Hapus',
+                    backgroundColor: Colors.red[50]!,
+                    textColor: Colors.red[700]!,
+                    borderColor: Colors.red[200],
+                    onTap: () {
+                      _showDeleteDialog(context);
                     },
                   ),
                 ),
@@ -344,9 +424,9 @@ class AdminInmateDetailPage extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        border: isLast ? null : Border(
-          bottom: BorderSide(color: Colors.grey[100]!, width: 1),
-        ),
+        border: isLast
+            ? null
+            : Border(bottom: BorderSide(color: Colors.grey[100]!, width: 1)),
       ),
       child: Row(
         children: [
@@ -401,7 +481,9 @@ class AdminInmateDetailPage extends StatelessWidget {
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(16),
-        border: borderColor != null ? Border.all(color: borderColor, width: 1.5) : null,
+        border: borderColor != null
+            ? Border.all(color: borderColor, width: 1.5)
+            : null,
         boxShadow: [
           BoxShadow(
             color: backgroundColor.withOpacity(0.3),
@@ -441,9 +523,7 @@ class AdminInmateDetailPage extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         title: Row(
           children: [
             Container(
@@ -452,7 +532,11 @@ class AdminInmateDetailPage extends StatelessWidget {
                 color: Colors.red[50],
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: Icon(Icons.warning_rounded, color: Colors.red[700], size: 24),
+              child: Icon(
+                Icons.warning_rounded,
+                color: Colors.red[700],
+                size: 24,
+              ),
             ),
             const SizedBox(width: 12),
             const Text(

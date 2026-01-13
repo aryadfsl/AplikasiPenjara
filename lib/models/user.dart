@@ -56,8 +56,6 @@ class UserModel {
     required this.registrationDate,
   });
 
-
-
   Map<String, dynamic> toMap() {
     return {
       'email': email,
@@ -75,19 +73,31 @@ class UserModel {
   }
 
   factory UserModel.fromMap(Map<String, dynamic> data, String id) {
-    return UserModel(
-      id: id,
-      email: data['email'] ?? '',
-      fullName: data['fullName'] ?? '',
-      role: data['role'] ?? 'user',
-      block: data['block'] ?? '',
-      cell: data['cell'] ?? '',
-      inmateId: data['inmateId'] ?? '',
-      crime: data['crime'] ?? '',
-      sentenceStart: DateTime.parse(data['sentenceStart'] ?? DateTime.now().toIso8601String()),
-      sentenceEnd: DateTime.parse(data['sentenceEnd'] ?? DateTime.now().toIso8601String()),
-      status: data['status'] ?? 'aktif',
-      registrationDate: DateTime.parse(data['registrationDate'] ?? DateTime.now().toIso8601String()),
-    );
+    try {
+      return UserModel(
+        id: id,
+        email: data['email']?.toString() ?? '',
+        fullName: data['fullName']?.toString() ?? '',
+        role: data['role']?.toString() ?? 'user',
+        block: data['block']?.toString() ?? '',
+        cell: data['cell']?.toString() ?? '',
+        inmateId: data['inmateId']?.toString() ?? '',
+        crime: data['crime']?.toString() ?? '',
+        sentenceStart: data['sentenceStart'] != null
+            ? DateTime.parse(data['sentenceStart'].toString())
+            : DateTime.now(),
+        sentenceEnd: data['sentenceEnd'] != null
+            ? DateTime.parse(data['sentenceEnd'].toString())
+            : DateTime.now(),
+        status: data['status']?.toString() ?? 'aktif',
+        registrationDate: data['registrationDate'] != null
+            ? DateTime.parse(data['registrationDate'].toString())
+            : DateTime.now(),
+      );
+    } catch (e) {
+      print('ERROR in UserModel.fromMap: $e');
+      print('Data: $data');
+      rethrow;
+    }
   }
 }

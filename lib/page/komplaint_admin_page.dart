@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/complaint.dart';
+import '../service/pdf_export_service.dart';
 import '../screens/komplain_admin_screens.dart';
 
 class AdminComplaintManagement extends StatefulWidget {
   const AdminComplaintManagement({super.key});
 
   @override
-  State<AdminComplaintManagement> createState() => _AdminComplaintManagementState();
+  State<AdminComplaintManagement> createState() =>
+      _AdminComplaintManagementState();
 }
 
 class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
@@ -51,10 +53,16 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   _buildDetailItem('Dari', complaint.userName),
-                  _buildDetailItem('Kategori', _getCategoryLabel(complaint.category)),
+                  _buildDetailItem(
+                    'Kategori',
+                    _getCategoryLabel(complaint.category),
+                  ),
                   _buildDetailItem('Prioritas', complaint.priority),
                   _buildDetailItem('Status', complaint.status),
-                  _buildDetailItem('Tanggal', _controller.formatDate(complaint.date)),
+                  _buildDetailItem(
+                    'Tanggal',
+                    _controller.formatDate(complaint.date),
+                  ),
                   const SizedBox(height: 12),
                   const Text(
                     'Deskripsi:',
@@ -88,7 +96,8 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
                 onPressed: () => Navigator.pop(context),
                 child: const Text('Tutup'),
               ),
-              if (complaint.status == 'pending' || complaint.status == 'diproses')
+              if (complaint.status == 'pending' ||
+                  complaint.status == 'diproses')
                 ElevatedButton(
                   onPressed: () async {
                     try {
@@ -99,9 +108,17 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
                       );
                       setState(() {});
                       Navigator.pop(context);
-                      _showSnackBar(context, 'Keluhan berhasil diupdate', Colors.green);
+                      _showSnackBar(
+                        context,
+                        'Keluhan berhasil diupdate',
+                        Colors.green,
+                      );
                     } catch (e) {
-                      _showSnackBar(context, 'Gagal mengupdate keluhan: $e', Colors.red);
+                      _showSnackBar(
+                        context,
+                        'Gagal mengupdate keluhan: $e',
+                        Colors.red,
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -150,10 +167,7 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
             color: statusColor.withOpacity(0.1),
             shape: BoxShape.circle,
           ),
-          child: Icon(
-            Icons.report_problem,
-            color: statusColor,
-          ),
+          child: Icon(Icons.report_problem, color: statusColor),
         ),
         title: Text(complaint.title),
         subtitle: Column(
@@ -164,7 +178,10 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
             Row(
               children: [
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: statusColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(10),
@@ -180,7 +197,10 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
                 ),
                 const SizedBox(width: 6),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
                     color: Colors.blueGrey[50],
                     borderRadius: BorderRadius.circular(10),
@@ -218,10 +238,7 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
             ),
           ),
           const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(fontSize: 14),
-          ),
+          Text(value, style: const TextStyle(fontSize: 14)),
         ],
       ),
     );
@@ -239,7 +256,9 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
 
   @override
   Widget build(BuildContext context) {
-    final pendingComplaints = _controller.allComplaints.where((c) => c.status == 'pending').length;
+    final pendingComplaints = _controller.allComplaints
+        .where((c) => c.status == 'pending')
+        .length;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -314,6 +333,36 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
                     ),
                   ),
                   const SizedBox(height: 20),
+                  // Tombol Export PDF
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      try {
+                        await PdfExportService.exportKeluhanPdf(
+                          _controller.filteredComplaints,
+                        );
+                      } catch (e) {
+                        _showSnackBar(
+                          context,
+                          'Gagal export PDF: $e',
+                          Colors.red,
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.picture_as_pdf),
+                    label: const Text('Export PDF'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red[700],
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 20,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
@@ -324,15 +373,19 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
                               decoration: InputDecoration(
                                 labelText: 'Cari keluhan...',
                                 prefixIcon: const Icon(Icons.search),
-                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
                                 filled: true,
                                 fillColor: Colors.white,
-                                suffixIcon: _controller.searchController.text.isNotEmpty
+                                suffixIcon:
+                                    _controller.searchController.text.isNotEmpty
                                     ? IconButton(
                                         icon: const Icon(Icons.clear),
                                         onPressed: () {
                                           setState(() {
-                                            _controller.searchController.clear();
+                                            _controller.searchController
+                                                .clear();
                                             _controller.filterComplaints();
                                           });
                                         },
@@ -360,13 +413,30 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
                             child: DropdownButton<String>(
                               value: _controller.selectedStatus,
                               underline: const SizedBox(),
-                              padding: const EdgeInsets.symmetric(horizontal: 8),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
                               items: const [
-                                DropdownMenuItem(value: 'semua', child: Text('Semua')),
-                                DropdownMenuItem(value: 'pending', child: Text('Pending')),
-                                DropdownMenuItem(value: 'in_progress', child: Text('Diproses')),
-                                DropdownMenuItem(value: 'resolved', child: Text('Selesai')),
-                                DropdownMenuItem(value: 'rejected', child: Text('Ditolak')),
+                                DropdownMenuItem(
+                                  value: 'semua',
+                                  child: Text('Semua'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'pending',
+                                  child: Text('Pending'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'in_progress',
+                                  child: Text('Diproses'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'resolved',
+                                  child: Text('Selesai'),
+                                ),
+                                DropdownMenuItem(
+                                  value: 'rejected',
+                                  child: Text('Ditolak'),
+                                ),
                               ],
                               onChanged: (value) {
                                 setState(() {
@@ -406,7 +476,8 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            _controller.searchController.text.isEmpty && _controller.selectedStatus == 'semua'
+                            _controller.searchController.text.isEmpty &&
+                                    _controller.selectedStatus == 'semua'
                                 ? 'Belum ada keluhan yang masuk'
                                 : 'Tidak ditemukan hasil pencarian',
                             textAlign: TextAlign.center,
@@ -420,7 +491,9 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
                     )
                   else
                     Column(
-                      children: _controller.filteredComplaints.map(_buildComplaintCard).toList(),
+                      children: _controller.filteredComplaints
+                          .map(_buildComplaintCard)
+                          .toList(),
                     ),
                   const SizedBox(height: 20),
                 ],
@@ -457,10 +530,7 @@ class _AdminComplaintManagementState extends State<AdminComplaintManagement> {
             children: [
               Text(
                 title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
               Text(
                 value,
