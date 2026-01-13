@@ -561,37 +561,25 @@ class _AdminInmateDetailPageState extends State<AdminInmateDetailPage> {
             ),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+              await firebaseService.deleteUser(inmate.id);
               Navigator.pop(context);
+              Navigator.pop(context, true); // Kembali ke list dan refresh
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: const Row(
                     children: [
-                      Icon(Icons.info_outline, color: Colors.white),
+                      Icon(Icons.check_circle_outline, color: Colors.white),
                       SizedBox(width: 12),
-                      Text('Fitur delete sedang dalam pengembangan'),
+                      Text('Narapidana berhasil dihapus'),
                     ],
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
                   ),
                   backgroundColor: Colors.red[700],
                 ),
               );
             },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red[700],
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            ),
-            child: const Text(
-              'Hapus',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            child: const Text('Hapus'),
           ),
         ],
       ),

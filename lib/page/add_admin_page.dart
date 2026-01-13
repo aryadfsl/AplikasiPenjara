@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../service/firebase_service.dart';
+import '../screens/edit_narapidana_screens.dart';
 import '../screens/add_narapidana_screens.dart';
 import '../models/user.dart';
 import '../service/pdf_export_service.dart';
@@ -14,6 +17,22 @@ class AdminInmateManagement extends StatefulWidget {
 }
 
 class _AdminInmateManagementState extends State<AdminInmateManagement> {
+    bool _exporting = false;
+
+    Future<void> _handleExportExcel() async {
+      setState(() => _exporting = true);
+      final filePath = await exportInmatesToExcel(_controller.allUsers);
+      setState(() => _exporting = false);
+      if (filePath != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('File Excel berhasil disimpan:\n$filePath'), backgroundColor: Colors.green),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Gagal export Excel atau izin ditolak'), backgroundColor: Colors.red),
+        );
+      }
+    }
   late AdminInmateManagementController _controller;
   bool _isLoading = true;
   XFile? _photoFile;
@@ -36,6 +55,7 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
   }
 
   void _showAddInmateDialog() {
+    _controller.resetForm();
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
@@ -449,9 +469,8 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                               : null,
                         ),
                         onChanged: (query) {
-                          setState(() {
-                            _controller.searchUsers(query);
-                          });
+                          _controller.searchUsers(query);
+                          setState(() {});
                         },
                       );
                     },
@@ -659,6 +678,49 @@ class _AdminInmateManagementState extends State<AdminInmateManagement> {
                       color: statusColor,
                     ),
                   ),
+                ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.blue),
+                  onPressed: () async {
+                    final result = await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => EditNarapidanaScreen(inmate: inmate),
+                      ),
+                    );
+                    if (result == true) await _loadData();
+                  },
+                  tooltip: 'Edit',
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.red),
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Konfirmasi Hapus'),
+                        content: Text('Yakin ingin menghapus narapidana ini?'),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context, false),
+                            child: const Text('Batal'),
+                          ),
+                          ElevatedButton(
+                            onPressed: () => Navigator.pop(context, true),
+                            child: const Text('Hapus'),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (confirm == true) {
+                      final firebaseService = Provider.of<FirebaseService>(context, listen: false);
+                      await firebaseService.deleteUser(inmate.id);
+                      await _loadData();
+                      _showSnackBar(context, 'Narapidana berhasil dihapus', Colors.red);
+                    }
+                  },
+                  tooltip: 'Hapus',
                 ),
               ],
             ),

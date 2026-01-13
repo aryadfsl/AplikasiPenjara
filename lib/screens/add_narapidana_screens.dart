@@ -35,18 +35,17 @@ class AdminInmateManagementController {
   }
 
   void searchUsers(String query) {
-    if (query.isEmpty) {
+    final trimmedQuery = query.trim().toLowerCase();
+    if (trimmedQuery.isEmpty) {
       filteredUsers = allUsers;
       return;
     }
-
-    final lowercaseQuery = query.toLowerCase();
     filteredUsers = allUsers.where((user) =>
-        user.fullName.toLowerCase().contains(lowercaseQuery) ||
-        user.inmateId.toLowerCase().contains(lowercaseQuery) ||
-        user.block.toLowerCase().contains(lowercaseQuery) ||
-        user.cell.toLowerCase().contains(lowercaseQuery) ||
-        user.crime.toLowerCase().contains(lowercaseQuery)
+      (user.fullName.trim().toLowerCase().contains(trimmedQuery)) ||
+      (user.inmateId.trim().toLowerCase().contains(trimmedQuery)) ||
+      (user.block.trim().toLowerCase().contains(trimmedQuery)) ||
+      (user.cell.trim().toLowerCase().contains(trimmedQuery)) ||
+      (user.crime.trim().toLowerCase().contains(trimmedQuery))
     ).toList();
   }
 
@@ -71,7 +70,7 @@ class AdminInmateManagementController {
       final generatedInmateId = '${blockController.text.trim().toUpperCase()}-${cellController.text.trim().padLeft(2, '0')}';
 
       final newInmate = UserModel(
-        id: '',
+        id: 'user_${DateTime.now().millisecondsSinceEpoch}',
         email: 'inmate_${DateTime.now().millisecondsSinceEpoch}@penjara.local',
         fullName: fullNameController.text,
         role: 'user',

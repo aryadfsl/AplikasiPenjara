@@ -1,4 +1,33 @@
 class UserModel {
+    UserModel copyWith({
+      String? id,
+      String? email,
+      String? fullName,
+      String? role,
+      String? block,
+      String? cell,
+      String? inmateId,
+      String? crime,
+      DateTime? sentenceStart,
+      DateTime? sentenceEnd,
+      String? status,
+      DateTime? registrationDate,
+    }) {
+      return UserModel(
+        id: id ?? this.id,
+        email: email ?? this.email,
+        fullName: fullName ?? this.fullName,
+        role: role ?? this.role,
+        block: block ?? this.block,
+        cell: cell ?? this.cell,
+        inmateId: inmateId ?? this.inmateId,
+        crime: crime ?? this.crime,
+        sentenceStart: sentenceStart ?? this.sentenceStart,
+        sentenceEnd: sentenceEnd ?? this.sentenceEnd,
+        status: status ?? this.status,
+        registrationDate: registrationDate ?? this.registrationDate,
+      );
+    }
   final String id;
   final String email;
   final String fullName;
